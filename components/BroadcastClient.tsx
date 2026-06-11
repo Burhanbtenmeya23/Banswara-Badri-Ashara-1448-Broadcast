@@ -46,10 +46,14 @@ export default function BroadcastClient() {
       if (res.ok) {
         const data = await res.json()
         setItsId(data.itsId ?? '')
+      } else {
+        const data = await res.json().catch(() => ({}))
+        if (data.reason === 'session_terminated') {
+          setTerminated(true)
+        }
       }
-      // Don't redirect on verify failure — only the initial load redirects
     } catch {
-      // Network blip — ignore
+      // Network blip — ignore, don't kick user out
     }
   }, [])
 
