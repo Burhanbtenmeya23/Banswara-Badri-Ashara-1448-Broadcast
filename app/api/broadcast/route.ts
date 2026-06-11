@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getUserFromCookie } from '@/lib/auth'
+import { cookies } from 'next/headers'
 
 export async function GET(req: NextRequest) {
   void req
-  const payload = await getUserFromCookie()
-  if (!payload) {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('auth_token')?.value
+
+  if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Fetch the YouTube settings — no extra session check here, JWT is sufficient
   const { data: settings } = await supabaseAdmin
     .from('settings')
     .select('youtube_video_id, youtube_url')

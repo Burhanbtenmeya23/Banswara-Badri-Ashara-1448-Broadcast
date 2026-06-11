@@ -1,22 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyUserToken } from '@/lib/auth'
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // Protect broadcast page
-  if (pathname === '/broadcast') {
-    const userToken = req.cookies.get('auth_token')?.value
-    if (!userToken || !verifyUserToken(userToken)) {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
-    return NextResponse.next()
-  }
-
-  // Redirect logged-in users away from login page
+  // Redirect already-logged-in users away from the login page
   if (pathname === '/') {
-    const userToken = req.cookies.get('auth_token')?.value
-    if (userToken && verifyUserToken(userToken)) {
+    const token = req.cookies.get('auth_token')?.value
+    if (token) {
       return NextResponse.redirect(new URL('/broadcast', req.url))
     }
   }
@@ -25,5 +15,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/broadcast'],
+  matcher: ['/'],
 }
