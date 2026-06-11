@@ -62,11 +62,13 @@ export default function LoginForm() {
               style={{ filter: 'drop-shadow(0 0 12px rgba(0,48,135,0.2))' }}
             />
           </div>
-          <h1 className="text-xl font-semibold text-[#001a54] leading-tight mb-1">
-            Banswara Badri Ashara
+          <h1 className="text-2xl font-bold text-[#001a54] leading-tight mb-1">
+            Ashara Mubaraka 1448
           </h1>
-          <p className="gold-text text-2xl font-bold tracking-wider">1448</p>
-          <p className="text-[rgba(0,26,84,0.45)] text-xs mt-2 tracking-widest uppercase">
+          <p className="text-[rgba(0,26,84,0.6)] text-sm mt-1 font-medium">
+            Badri mohallah – Banswara
+          </p>
+          <p className="text-[rgba(0,26,84,0.35)] text-xs mt-2 tracking-widest uppercase">
             Private Broadcast Portal
           </p>
         </div>
