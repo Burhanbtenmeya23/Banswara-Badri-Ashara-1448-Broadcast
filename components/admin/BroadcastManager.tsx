@@ -92,7 +92,7 @@ export default function BroadcastManager() {
     return (
       <div className="flex items-center justify-center h-40">
         <div className="w-8 h-8 border-2 rounded-full animate-spin"
-          style={{ borderColor: 'rgba(201,168,76,0.3)', borderTopColor: '#c9a84c' }} />
+          style={{ borderColor: 'rgba(201,147,10,0.3)', borderTopColor: '#c9930a' }} />
       </div>
     )
   }
@@ -100,8 +100,8 @@ export default function BroadcastManager() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-xl font-semibold" style={{ color: '#f5efe0' }}>Broadcast Management</h1>
-        <p className="text-xs mt-1" style={{ color: 'rgba(245,239,224,0.4)' }}>
+        <h1 className="text-xl font-semibold" style={{ color: '#eef0f8' }}>Broadcast Management</h1>
+        <p className="text-xs mt-1" style={{ color: 'rgba(238,240,248,0.4)' }}>
           Configure YouTube video and broadcast schedule
         </p>
       </div>
@@ -109,7 +109,7 @@ export default function BroadcastManager() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Settings Form */}
         <div className="glass-card p-6">
-          <h2 className="text-sm font-medium mb-5" style={{ color: '#f5efe0' }}>Broadcast Settings</h2>
+          <h2 className="text-sm font-medium mb-5" style={{ color: '#eef0f8' }}>Broadcast Settings</h2>
 
           {error && (
             <div className="mb-4 px-4 py-2.5 rounded-lg text-xs"
@@ -126,19 +126,19 @@ export default function BroadcastManager() {
 
           <form onSubmit={handleSave} className="space-y-5">
             <div>
-              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,168,76,0.8)' }}>
+              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>
                 YouTube URL
               </label>
               <input type="text" className="glass-input"
                 placeholder="https://www.youtube.com/watch?v=..."
                 value={url} onChange={e => setUrl(e.target.value)} />
-              <p className="text-xs mt-1" style={{ color: 'rgba(245,239,224,0.3)' }}>
+              <p className="text-xs mt-1" style={{ color: 'rgba(238,240,248,0.3)' }}>
                 Supports youtube.com/watch, youtu.be, youtube.com/live
               </p>
             </div>
 
             <div>
-              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,168,76,0.8)' }}>
+              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>
                 Broadcast Start Date & Time
               </label>
               <input type="datetime-local" className="glass-input"
@@ -147,13 +147,13 @@ export default function BroadcastManager() {
             </div>
 
             <div>
-              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,168,76,0.8)' }}>
+              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>
                 Broadcast End Date & Time
               </label>
               <input type="datetime-local" className="glass-input"
                 value={endAt} onChange={e => setEndAt(e.target.value)}
                 style={{ colorScheme: 'dark' }} />
-              <p className="text-xs mt-1" style={{ color: 'rgba(245,239,224,0.3)' }}>
+              <p className="text-xs mt-1" style={{ color: 'rgba(238,240,248,0.3)' }}>
                 Leave blank to keep broadcast running indefinitely
               </p>
             </div>
@@ -164,11 +164,11 @@ export default function BroadcastManager() {
           </form>
 
           {settings?.youtube_video_id && (
-            <div className="mt-5 pt-4 text-xs space-y-1" style={{ borderTop: '1px solid rgba(201,168,76,0.1)' }}>
-              <p style={{ color: 'rgba(245,239,224,0.4)' }}>
-                Video ID: <span className="font-mono" style={{ color: '#c9a84c' }}>{settings.youtube_video_id}</span>
+            <div className="mt-5 pt-4 text-xs space-y-1" style={{ borderTop: '1px solid rgba(201,147,10,0.1)' }}>
+              <p style={{ color: 'rgba(238,240,248,0.4)' }}>
+                Video ID: <span className="font-mono" style={{ color: '#c9930a' }}>{settings.youtube_video_id}</span>
               </p>
-              <p style={{ color: 'rgba(245,239,224,0.3)' }}>
+              <p style={{ color: 'rgba(238,240,248,0.3)' }}>
                 Last updated: {new Date(settings.updated_at).toLocaleString('en-IN')}
               </p>
             </div>
@@ -177,7 +177,7 @@ export default function BroadcastManager() {
 
         {/* Preview Panel */}
         <div className="glass-card p-6">
-          <h2 className="text-sm font-medium mb-4" style={{ color: '#f5efe0' }}>Preview States</h2>
+          <h2 className="text-sm font-medium mb-4" style={{ color: '#eef0f8' }}>Preview States</h2>
 
           <div className="flex flex-wrap gap-2 mb-5">
             {([
@@ -190,9 +190,9 @@ export default function BroadcastManager() {
                 onClick={() => setPreviewState(opt.value)}
                 className="text-xs px-3 py-1.5 rounded-lg transition-all"
                 style={{
-                  background: previewState === opt.value ? 'rgba(201,168,76,0.2)' : 'rgba(255,255,255,0.04)',
-                  border: previewState === opt.value ? '1px solid rgba(201,168,76,0.4)' : '1px solid rgba(255,255,255,0.08)',
-                  color: previewState === opt.value ? '#c9a84c' : 'rgba(245,239,224,0.5)',
+                  background: previewState === opt.value ? 'rgba(201,147,10,0.2)' : 'rgba(255,255,255,0.04)',
+                  border: previewState === opt.value ? '1px solid rgba(201,147,10,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                  color: previewState === opt.value ? '#c9930a' : 'rgba(238,240,248,0.5)',
                 }}>
                 {opt.label}
               </button>
@@ -200,11 +200,11 @@ export default function BroadcastManager() {
           </div>
 
           <div className="rounded-xl overflow-hidden flex flex-col min-h-64"
-            style={{ background: 'rgba(13,10,3,0.8)', border: '1px solid rgba(201,168,76,0.1)' }}>
+            style={{ background: 'rgba(0,16,64,0.8)', border: '1px solid rgba(201,147,10,0.1)' }}>
             <BroadcastPlayer settings={previewSettings} previewState={previewState} />
           </div>
 
-          <p className="text-xs mt-3" style={{ color: 'rgba(245,239,224,0.25)' }}>
+          <p className="text-xs mt-3" style={{ color: 'rgba(238,240,248,0.25)' }}>
             Preview only — does not affect what users see
           </p>
         </div>

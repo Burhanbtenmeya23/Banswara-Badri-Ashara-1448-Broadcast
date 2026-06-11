@@ -23,8 +23,8 @@ function Modal({ title, onClose, children }: ModalProps) {
       style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
       <div className="glass-card w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="font-semibold" style={{ color: '#f5efe0' }}>{title}</h3>
-          <button onClick={onClose} style={{ color: 'rgba(245,239,224,0.4)' }}
+          <h3 className="font-semibold" style={{ color: '#eef0f8' }}>{title}</h3>
+          <button onClick={onClose} style={{ color: 'rgba(238,240,248,0.4)' }}
             className="hover:opacity-70 transition-opacity">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -180,18 +180,18 @@ export default function UsersManager() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl font-semibold" style={{ color: '#f5efe0' }}>User Management</h1>
-          <p className="text-xs mt-1" style={{ color: 'rgba(245,239,224,0.4)' }}>{total} users total</p>
+          <h1 className="text-xl font-semibold" style={{ color: '#eef0f8' }}>User Management</h1>
+          <p className="text-xs mt-1" style={{ color: 'rgba(238,240,248,0.4)' }}>{total} users total</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <button onClick={() => setImportModal(true)}
             className="px-3 py-2 text-xs rounded-lg transition-all"
-            style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)', color: '#c9a84c' }}>
+            style={{ background: 'rgba(201,147,10,0.1)', border: '1px solid rgba(201,147,10,0.25)', color: '#c9930a' }}>
             Import CSV
           </button>
           <button onClick={handleExport}
             className="px-3 py-2 text-xs rounded-lg transition-all"
-            style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)', color: '#c9a84c' }}>
+            style={{ background: 'rgba(201,147,10,0.1)', border: '1px solid rgba(201,147,10,0.25)', color: '#c9930a' }}>
             Export CSV
           </button>
           <button onClick={() => { setAddModal(true); setFormData({ its_id: '', password: '' }); setFormError('') }}
@@ -227,9 +227,9 @@ export default function UsersManager() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={5} className="text-center py-8" style={{ color: 'rgba(245,239,224,0.35)' }}>Loading...</td></tr>
+                <tr><td colSpan={5} className="text-center py-8" style={{ color: 'rgba(238,240,248,0.35)' }}>Loading...</td></tr>
               ) : users.length === 0 ? (
-                <tr><td colSpan={5} className="text-center py-8" style={{ color: 'rgba(245,239,224,0.35)' }}>No users found.</td></tr>
+                <tr><td colSpan={5} className="text-center py-8" style={{ color: 'rgba(238,240,248,0.35)' }}>No users found.</td></tr>
               ) : users.map((user) => (
                 <tr key={user.id}>
                   <td className="font-mono font-medium">{user.its_id}</td>
@@ -239,7 +239,7 @@ export default function UsersManager() {
                     <span className="text-xs px-2 py-0.5 rounded-full"
                       style={{
                         background: user.active_session_token ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.05)',
-                        color: user.active_session_token ? '#34d399' : 'rgba(245,239,224,0.3)',
+                        color: user.active_session_token ? '#34d399' : 'rgba(238,240,248,0.3)',
                         border: `1px solid ${user.active_session_token ? 'rgba(52,211,153,0.2)' : 'rgba(255,255,255,0.08)'}`,
                       }}>
                       {user.active_session_token ? 'Active' : 'Idle'}
@@ -249,7 +249,7 @@ export default function UsersManager() {
                     <div className="flex gap-2">
                       <button onClick={() => openEdit(user)}
                         className="text-xs px-2 py-1 rounded"
-                        style={{ background: 'rgba(201,168,76,0.1)', color: '#c9a84c', border: '1px solid rgba(201,168,76,0.2)' }}>
+                        style={{ background: 'rgba(201,147,10,0.1)', color: '#c9930a', border: '1px solid rgba(201,147,10,0.2)' }}>
                         Edit
                       </button>
                       <button onClick={() => setDeleteUser(user)}
@@ -268,18 +268,18 @@ export default function UsersManager() {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-3 px-5 py-4"
-            style={{ borderTop: '1px solid rgba(201,168,76,0.1)' }}>
+            style={{ borderTop: '1px solid rgba(201,147,10,0.1)' }}>
             <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
               className="text-xs px-3 py-1.5 rounded disabled:opacity-40"
-              style={{ background: 'rgba(201,168,76,0.1)', color: '#c9a84c', border: '1px solid rgba(201,168,76,0.2)' }}>
+              style={{ background: 'rgba(201,147,10,0.1)', color: '#c9930a', border: '1px solid rgba(201,147,10,0.2)' }}>
               ← Prev
             </button>
-            <span className="text-xs" style={{ color: 'rgba(245,239,224,0.5)' }}>
+            <span className="text-xs" style={{ color: 'rgba(238,240,248,0.5)' }}>
               {page} / {totalPages}
             </span>
             <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}
               className="text-xs px-3 py-1.5 rounded disabled:opacity-40"
-              style={{ background: 'rgba(201,168,76,0.1)', color: '#c9a84c', border: '1px solid rgba(201,168,76,0.2)' }}>
+              style={{ background: 'rgba(201,147,10,0.1)', color: '#c9930a', border: '1px solid rgba(201,147,10,0.2)' }}>
               Next →
             </button>
           </div>
@@ -292,12 +292,12 @@ export default function UsersManager() {
           <form onSubmit={handleAddUser} className="space-y-4">
             {formError && <p className="text-xs text-center py-2 px-3 rounded" style={{ background: 'rgba(239,68,68,0.1)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)' }}>{formError}</p>}
             <div>
-              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,168,76,0.8)' }}>ITS ID (8 digits)</label>
+              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>ITS ID (8 digits)</label>
               <input type="text" className="glass-input" placeholder="12345678"
                 value={formData.its_id} onChange={e => setFormData(f => ({ ...f, its_id: e.target.value.replace(/\D/g, '').slice(0, 8) }))} required />
             </div>
             <div>
-              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,168,76,0.8)' }}>Password</label>
+              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>Password</label>
               <input type="password" className="glass-input" placeholder="Min 6 characters"
                 value={formData.password} onChange={e => setFormData(f => ({ ...f, password: e.target.value }))} required />
             </div>
@@ -314,16 +314,16 @@ export default function UsersManager() {
           <form onSubmit={handleEditUser} className="space-y-4">
             {formError && <p className="text-xs text-center py-2 px-3 rounded" style={{ background: 'rgba(239,68,68,0.1)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)' }}>{formError}</p>}
             <div>
-              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,168,76,0.8)' }}>ITS ID (8 digits)</label>
+              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>ITS ID (8 digits)</label>
               <input type="text" className="glass-input"
                 value={formData.its_id} onChange={e => setFormData(f => ({ ...f, its_id: e.target.value.replace(/\D/g, '').slice(0, 8) }))} />
             </div>
             <div>
-              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,168,76,0.8)' }}>New Password <span style={{ color: 'rgba(245,239,224,0.3)' }}>(leave blank to keep)</span></label>
+              <label className="block text-xs mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>New Password <span style={{ color: 'rgba(238,240,248,0.3)' }}>(leave blank to keep)</span></label>
               <input type="password" className="glass-input" placeholder="New password..."
                 value={formData.password} onChange={e => setFormData(f => ({ ...f, password: e.target.value }))} />
             </div>
-            <p className="text-xs" style={{ color: 'rgba(245,239,224,0.35)' }}>
+            <p className="text-xs" style={{ color: 'rgba(238,240,248,0.35)' }}>
               Changing password will terminate active sessions.
             </p>
             <button type="submit" className="btn-gold" disabled={formLoading}>
@@ -336,14 +336,14 @@ export default function UsersManager() {
       {/* Delete Confirm Modal */}
       {deleteUser && (
         <Modal title="Delete User" onClose={() => setDeleteUser(null)}>
-          <p className="text-sm mb-6" style={{ color: 'rgba(245,239,224,0.65)' }}>
-            Are you sure you want to delete ITS ID <strong className="font-mono" style={{ color: '#f5efe0' }}>{deleteUser.its_id}</strong>?
+          <p className="text-sm mb-6" style={{ color: 'rgba(238,240,248,0.65)' }}>
+            Are you sure you want to delete ITS ID <strong className="font-mono" style={{ color: '#eef0f8' }}>{deleteUser.its_id}</strong>?
             This action cannot be undone.
           </p>
           <div className="flex gap-3">
             <button onClick={() => setDeleteUser(null)}
               className="flex-1 py-2.5 text-sm rounded-lg"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(245,239,224,0.6)' }}>
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(238,240,248,0.6)' }}>
               Cancel
             </button>
             <button onClick={handleDelete} disabled={formLoading}
@@ -359,20 +359,20 @@ export default function UsersManager() {
       {importModal && (
         <Modal title="Import Users from CSV" onClose={() => { setImportModal(false); setImportResult(null) }}>
           <div className="space-y-4">
-            <div className="p-4 rounded-lg text-xs" style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.15)' }}>
-              <p className="font-medium mb-2" style={{ color: '#c9a84c' }}>CSV Format Required:</p>
-              <p className="font-mono" style={{ color: 'rgba(245,239,224,0.6)' }}>its_id,password</p>
-              <p className="font-mono" style={{ color: 'rgba(245,239,224,0.6)' }}>12345678,password123</p>
-              <p className="mt-2" style={{ color: 'rgba(245,239,224,0.4)' }}>
+            <div className="p-4 rounded-lg text-xs" style={{ background: 'rgba(201,147,10,0.06)', border: '1px solid rgba(201,147,10,0.15)' }}>
+              <p className="font-medium mb-2" style={{ color: '#c9930a' }}>CSV Format Required:</p>
+              <p className="font-mono" style={{ color: 'rgba(238,240,248,0.6)' }}>its_id,password</p>
+              <p className="font-mono" style={{ color: 'rgba(238,240,248,0.6)' }}>12345678,password123</p>
+              <p className="mt-2" style={{ color: 'rgba(238,240,248,0.4)' }}>
                 Existing ITS IDs will be updated. Max 500 rows.
               </p>
             </div>
 
             <input ref={fileRef} type="file" accept=".csv" onChange={handleFileImport}
               className="block w-full text-xs"
-              style={{ color: 'rgba(245,239,224,0.6)' }} />
+              style={{ color: 'rgba(238,240,248,0.6)' }} />
 
-            {formLoading && <p className="text-xs text-center" style={{ color: '#c9a84c' }}>Processing...</p>}
+            {formLoading && <p className="text-xs text-center" style={{ color: '#c9930a' }}>Processing...</p>}
 
             {importResult && (
               <div className="p-4 rounded-lg text-xs space-y-1" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>

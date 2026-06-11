@@ -81,14 +81,14 @@ export default function BroadcastPlayer({
       <div className="flex flex-col items-center justify-center flex-1 px-4">
         <div className="glass-card p-10 text-center max-w-md w-full">
           <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5">
+            style={{ background: 'rgba(201,147,10,0.1)', border: '1px solid rgba(201,147,10,0.2)' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9930a" strokeWidth="1.5">
               <polygon points="23 7 16 12 23 17 23 7"/>
               <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
             </svg>
           </div>
-          <h2 className="font-medium mb-2" style={{ color: '#f5efe0' }}>Broadcast Not Available</h2>
-          <p className="text-sm" style={{ color: 'rgba(245,239,224,0.45)' }}>
+          <h2 className="font-medium mb-2" style={{ color: '#eef0f8' }}>Broadcast Not Available</h2>
+          <p className="text-sm" style={{ color: 'rgba(238,240,248,0.45)' }}>
             The broadcast has not been configured yet.
           </p>
         </div>
@@ -102,21 +102,21 @@ export default function BroadcastPlayer({
       <div className="flex flex-col items-center justify-center flex-1 px-4 py-8">
         <div className="glass-card p-8 text-center max-w-lg w-full">
           <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5"
-            style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5">
+            style={{ background: 'rgba(201,147,10,0.1)', border: '1px solid rgba(201,147,10,0.25)' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9930a" strokeWidth="1.5">
               <circle cx="12" cy="12" r="10"/>
               <polyline points="12 6 12 12 16 14"/>
             </svg>
           </div>
 
-          <h2 className="text-lg font-semibold mb-2" style={{ color: '#f5efe0' }}>
+          <h2 className="text-lg font-semibold mb-2" style={{ color: '#eef0f8' }}>
             Broadcast Not Yet Started
           </h2>
 
           {settings?.broadcast_start_at && (
-            <p className="text-sm mb-7" style={{ color: 'rgba(245,239,224,0.5)' }}>
+            <p className="text-sm mb-7" style={{ color: 'rgba(238,240,248,0.5)' }}>
               Broadcast will begin at{' '}
-              <span style={{ color: '#c9a84c' }}>{formatDateTime(settings.broadcast_start_at)}</span>
+              <span style={{ color: '#c9930a' }}>{formatDateTime(settings.broadcast_start_at)}</span>
             </p>
           )}
 
@@ -129,11 +129,11 @@ export default function BroadcastPlayer({
               { label: 'Secs', value: countdown.seconds },
             ].map(({ label, value }) => (
               <div key={label} className="flex flex-col items-center py-4 px-2 rounded-xl"
-                style={{ background: 'rgba(201,168,76,0.07)', border: '1px solid rgba(201,168,76,0.15)' }}>
-                <span className="text-2xl font-bold tabular-nums" style={{ color: '#c9a84c' }}>
+                style={{ background: 'rgba(201,147,10,0.07)', border: '1px solid rgba(201,147,10,0.15)' }}>
+                <span className="text-2xl font-bold tabular-nums" style={{ color: '#c9930a' }}>
                   {pad(value)}
                 </span>
-                <span className="text-xs mt-1" style={{ color: 'rgba(245,239,224,0.35)' }}>
+                <span className="text-xs mt-1" style={{ color: 'rgba(238,240,248,0.35)' }}>
                   {label}
                 </span>
               </div>
@@ -150,19 +150,19 @@ export default function BroadcastPlayer({
       <div className="flex flex-col items-center justify-center flex-1 px-4">
         <div className="glass-card p-10 text-center max-w-md w-full">
           <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5">
+            style={{ background: 'rgba(201,147,10,0.08)', border: '1px solid rgba(201,147,10,0.2)' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9930a" strokeWidth="1.5">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
-          <h2 className="text-lg font-semibold mb-2" style={{ color: '#f5efe0' }}>Broadcast Has Ended</h2>
-          <p className="text-sm mb-1" style={{ color: 'rgba(245,239,224,0.5)' }}>
+          <h2 className="text-lg font-semibold mb-2" style={{ color: '#eef0f8' }}>Broadcast Has Ended</h2>
+          <p className="text-sm mb-1" style={{ color: 'rgba(238,240,248,0.5)' }}>
             This broadcast has concluded.
           </p>
-          <p className="text-sm mb-1" style={{ color: 'rgba(245,239,224,0.5)' }}>
+          <p className="text-sm mb-1" style={{ color: 'rgba(238,240,248,0.5)' }}>
             Thank you for attending.
           </p>
-          <p className="text-xs mt-4" style={{ color: 'rgba(245,239,224,0.3)' }}>
+          <p className="text-xs mt-4" style={{ color: 'rgba(238,240,248,0.3)' }}>
             Please check back for future broadcasts.
           </p>
         </div>

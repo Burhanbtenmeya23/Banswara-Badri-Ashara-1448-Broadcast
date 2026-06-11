@@ -274,9 +274,9 @@ export default function YouTubePlayer({ url, itsId }: Props) {
         <div
           className="absolute z-30 top-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-xs font-medium transition-all duration-500 pointer-events-none whitespace-nowrap"
           style={{
-            background: 'rgba(13,10,3,0.88)',
-            border: '1px solid rgba(201,168,76,0.35)',
-            color: '#c9a84c',
+            background: 'rgba(0,16,64,0.9)',
+            border: '1px solid rgba(201,147,10,0.35)',
+            color: '#c9930a',
             backdropFilter: 'blur(8px)',
             opacity: showWelcomeBack ? 1 : 0,
             transform: `translateX(-50%) translateY(${showWelcomeBack ? '0' : '-8px'})`,
@@ -289,10 +289,10 @@ export default function YouTubePlayer({ url, itsId }: Props) {
         {!playerReady && (
           <div
             className="absolute inset-0 z-40 flex items-center justify-center"
-            style={{ background: 'rgba(13,10,3,0.9)' }}
+            style={{ background: 'rgba(0,16,64,0.92)' }}
           >
             <div className="w-8 h-8 border-2 rounded-full animate-spin"
-              style={{ borderColor: 'rgba(201,168,76,0.3)', borderTopColor: '#c9a84c' }} />
+              style={{ borderColor: 'rgba(201,147,10,0.3)', borderTopColor: '#c9930a' }} />
           </div>
         )}
       </div>

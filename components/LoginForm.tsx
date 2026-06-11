@@ -44,9 +44,9 @@ export default function LoginForm() {
       {/* Decorative background orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full opacity-10"
-          style={{ background: 'radial-gradient(circle, #c9a84c 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, #c9930a 0%, transparent 70%)' }} />
         <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full opacity-8"
-          style={{ background: 'radial-gradient(circle, #a07830 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, #8a6500 0%, transparent 70%)' }} />
       </div>
 
       <div className="relative w-full max-w-sm">
@@ -59,21 +59,21 @@ export default function LoginForm() {
               alt="Ashara Mubaraka 1448"
               width={120}
               height={120}
-              style={{ filter: 'drop-shadow(0 0 12px rgba(201,168,76,0.35))' }}
+              style={{ filter: 'drop-shadow(0 0 12px rgba(201,147,10,0.35))' }}
             />
           </div>
-          <h1 className="text-xl font-semibold text-[#f5efe0] leading-tight mb-1">
+          <h1 className="text-xl font-semibold text-[#eef0f8] leading-tight mb-1">
             Banswara Badri Ashara
           </h1>
           <p className="gold-text text-2xl font-bold tracking-wider">1448</p>
-          <p className="text-[rgba(245,239,224,0.45)] text-xs mt-2 tracking-widest uppercase">
+          <p className="text-[rgba(238,240,248,0.45)] text-xs mt-2 tracking-widest uppercase">
             Private Broadcast Portal
           </p>
         </div>
 
         {/* Card */}
         <div className="glass-card p-7">
-          <h2 className="text-center text-[rgba(245,239,224,0.7)] text-sm mb-6 font-normal">
+          <h2 className="text-center text-[rgba(238,240,248,0.7)] text-sm mb-6 font-normal">
             Enter your credentials to access the broadcast
           </h2>
 
@@ -86,7 +86,7 @@ export default function LoginForm() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(201,168,76,0.8)' }}>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>
                 ITS ID
               </label>
               <input
@@ -104,7 +104,7 @@ export default function LoginForm() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(201,168,76,0.8)' }}>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>
                 Password
               </label>
               <div className="relative">
@@ -121,7 +121,7 @@ export default function LoginForm() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 opacity-40 hover:opacity-70 transition-opacity"
-                  style={{ color: '#f5efe0' }}
+                  style={{ color: '#eef0f8' }}
                   tabIndex={-1}
                 >
                   {showPassword ? (
@@ -155,7 +155,7 @@ export default function LoginForm() {
           </form>
         </div>
 
-        <p className="text-center text-xs mt-6" style={{ color: 'rgba(245,239,224,0.2)' }}>
+        <p className="text-center text-xs mt-6" style={{ color: 'rgba(238,240,248,0.2)' }}>
           Access restricted. Contact admin for credentials.
         </p>
       </div>
