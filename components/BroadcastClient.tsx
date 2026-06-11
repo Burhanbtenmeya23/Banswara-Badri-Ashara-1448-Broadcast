@@ -86,7 +86,7 @@ export default function BroadcastClient() {
             </svg>
           </div>
           <h2 className="text-lg font-semibold mb-3" style={{ color: '#fca5a5' }}>Session Terminated</h2>
-          <p className="text-sm mb-6" style={{ color: 'rgba(238,240,248,0.65)' }}>
+          <p className="text-sm mb-6" style={{ color: 'rgba(0,26,84,0.65)' }}>
             Your session has been terminated because your account was used on another device.
           </p>
           <button onClick={() => { window.location.href = '/' }} className="btn-gold">
@@ -102,8 +102,8 @@ export default function BroadcastClient() {
       <div className="bg-broadcast min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-10 h-10 border-2 rounded-full animate-spin mx-auto mb-4"
-            style={{ borderColor: 'rgba(201,147,10,0.3)', borderTopColor: '#c9930a' }} />
-          <p className="text-sm" style={{ color: 'rgba(201,147,10,0.6)' }}>Loading Broadcast...</p>
+            style={{ borderColor: 'rgba(0,48,135,0.18)', borderTopColor: '#003087' }} />
+          <p className="text-sm" style={{ color: 'rgba(0,48,135,0.4)' }}>Loading Broadcast...</p>
         </div>
       </div>
     )
@@ -114,7 +114,7 @@ export default function BroadcastClient() {
       <div className="bg-broadcast min-h-screen flex items-center justify-center px-4">
         <div className="glass-card p-8 text-center max-w-sm w-full">
           <p className="text-sm mb-2" style={{ color: '#fca5a5' }}>Broadcast unavailable.</p>
-          <p className="text-xs mb-5" style={{ color: 'rgba(238,240,248,0.4)' }}>Please contact the administrator.</p>
+          <p className="text-xs mb-5" style={{ color: 'rgba(0,26,84,0.4)' }}>Please contact the administrator.</p>
           <button onClick={verifyAndLoad} className="btn-gold">Retry</button>
         </div>
       </div>
@@ -130,7 +130,7 @@ export default function BroadcastClient() {
     >
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: '1px solid rgba(201,147,10,0.12)', background: 'rgba(0,16,64,0.75)', backdropFilter: 'blur(10px)' }}>
+        style={{ borderBottom: '1px solid rgba(0,48,135,0.09)', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)' }}>
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -138,19 +138,19 @@ export default function BroadcastClient() {
             alt="Ashara Mubaraka 1448"
             width={36}
             height={36}
-            style={{ filter: 'drop-shadow(0 0 6px rgba(201,147,10,0.3))' }}
+            style={{ filter: 'drop-shadow(0 0 6px rgba(0,48,135,0.18))' }}
           />
           <div>
-            <h1 className="text-sm font-semibold" style={{ color: '#eef0f8' }}>
+            <h1 className="text-sm font-semibold" style={{ color: '#001a54' }}>
               Banswara Badri Ashara <span className="gold-text">1448</span>
             </h1>
-            <p className="text-xs" style={{ color: 'rgba(201,147,10,0.5)' }}>Live Broadcast</p>
+            <p className="text-xs" style={{ color: 'rgba(0,48,135,0.3)' }}>Live Broadcast</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           {itsId && (
             <span className="text-xs px-2 py-1 rounded"
-              style={{ background: 'rgba(201,147,10,0.1)', color: 'rgba(201,147,10,0.7)', border: '1px solid rgba(201,147,10,0.2)' }}>
+              style={{ background: 'rgba(0,48,135,0.08)', color: 'rgba(0,48,135,0.55)', border: '1px solid rgba(0,48,135,0.12)' }}>
               {itsId}
             </span>
           )}

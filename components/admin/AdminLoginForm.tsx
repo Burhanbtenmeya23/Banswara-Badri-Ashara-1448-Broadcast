@@ -41,7 +41,7 @@ export default function AdminLoginForm() {
     <div className="bg-broadcast min-h-screen flex items-center justify-center px-4">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full opacity-8"
-          style={{ background: 'radial-gradient(circle, #c9930a 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, #003087 0%, transparent 70%)' }} />
       </div>
 
       <div className="relative w-full max-w-sm">
@@ -53,11 +53,11 @@ export default function AdminLoginForm() {
               alt="Ashara Mubaraka 1448"
               width={80}
               height={80}
-              style={{ filter: 'drop-shadow(0 0 8px rgba(201,147,10,0.25))', opacity: 0.85 }}
+              style={{ filter: 'drop-shadow(0 0 8px rgba(0,48,135,0.15))', opacity: 0.85 }}
             />
           </div>
-          <h1 className="text-lg font-semibold" style={{ color: '#eef0f8' }}>Admin Access</h1>
-          <p className="text-xs mt-1" style={{ color: 'rgba(201,147,10,0.5)' }}>Restricted — Authorized Personnel Only</p>
+          <h1 className="text-lg font-semibold" style={{ color: '#001a54' }}>Admin Access</h1>
+          <p className="text-xs mt-1" style={{ color: 'rgba(0,48,135,0.3)' }}>Restricted — Authorized Personnel Only</p>
         </div>
 
         <div className="glass-card p-7">
@@ -70,7 +70,7 @@ export default function AdminLoginForm() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(0,48,135,0.65)' }}>
                 Username
               </label>
               <input
@@ -85,7 +85,7 @@ export default function AdminLoginForm() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(201,147,10,0.8)' }}>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(0,48,135,0.65)' }}>
                 Password
               </label>
               <input
@@ -106,7 +106,7 @@ export default function AdminLoginForm() {
         </div>
 
         <p className="text-center text-xs mt-4">
-          <a href="/" style={{ color: 'rgba(238,240,248,0.3)' }} className="hover:underline">
+          <a href="/" style={{ color: 'rgba(0,26,84,0.3)' }} className="hover:underline">
             ← User Login
           </a>
         </p>

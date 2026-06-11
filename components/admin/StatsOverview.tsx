@@ -19,8 +19,8 @@ function StatCard({ label, value, icon, color }: {
         <span style={{ color }}>{icon}</span>
       </div>
       <div>
-        <p className="text-xl font-bold" style={{ color: '#eef0f8' }}>{value}</p>
-        <p className="text-xs mt-0.5" style={{ color: 'rgba(238,240,248,0.45)' }}>{label}</p>
+        <p className="text-xl font-bold" style={{ color: '#001a54' }}>{value}</p>
+        <p className="text-xs mt-0.5" style={{ color: 'rgba(0,26,84,0.45)' }}>{label}</p>
       </div>
     </div>
   )
@@ -50,7 +50,7 @@ export default function StatsOverview() {
     return (
       <div className="flex items-center justify-center h-40">
         <div className="w-8 h-8 border-2 rounded-full animate-spin"
-          style={{ borderColor: 'rgba(201,147,10,0.3)', borderTopColor: '#c9930a' }} />
+          style={{ borderColor: 'rgba(0,48,135,0.18)', borderTopColor: '#003087' }} />
       </div>
     )
   }
@@ -58,14 +58,14 @@ export default function StatsOverview() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-xl font-semibold" style={{ color: '#eef0f8' }}>Dashboard Overview</h1>
-        <p className="text-xs mt-1" style={{ color: 'rgba(238,240,248,0.4)' }}>
+        <h1 className="text-xl font-semibold" style={{ color: '#001a54' }}>Dashboard Overview</h1>
+        <p className="text-xs mt-1" style={{ color: 'rgba(0,26,84,0.4)' }}>
           Live stats — refreshes every 30 seconds
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <StatCard label="Total Users" value={stats?.totalUsers ?? 0} color="#c9930a"
+        <StatCard label="Total Users" value={stats?.totalUsers ?? 0} color="#003087"
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
             <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
@@ -85,11 +85,11 @@ export default function StatsOverview() {
 
       {/* Recent logins */}
       <div className="glass-card overflow-hidden">
-        <div className="px-5 py-4" style={{ borderBottom: '1px solid rgba(201,147,10,0.1)' }}>
-          <h2 className="text-sm font-medium" style={{ color: '#eef0f8' }}>Recent Logins</h2>
+        <div className="px-5 py-4" style={{ borderBottom: '1px solid rgba(0,48,135,0.08)' }}>
+          <h2 className="text-sm font-medium" style={{ color: '#001a54' }}>Recent Logins</h2>
         </div>
         {!stats?.recentLogins?.length ? (
-          <p className="px-5 py-6 text-sm text-center" style={{ color: 'rgba(238,240,248,0.35)' }}>No logins recorded yet.</p>
+          <p className="px-5 py-6 text-sm text-center" style={{ color: 'rgba(0,26,84,0.35)' }}>No logins recorded yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full admin-table">

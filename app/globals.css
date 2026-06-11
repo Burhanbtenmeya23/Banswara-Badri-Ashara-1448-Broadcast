@@ -1,82 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 @import "tailwindcss";
 
 :root {
-  /* Brand palette — asharamubaraka.net */
   --teal-900: #00082b;
-  --teal-800: #001040;
   --teal-700: #001a54;
   --teal-600: #002570;
   --teal-500: #003087;
-  --teal-200: #9fb2de;
+  --teal-100: #d6e0f5;
+  --teal-50:  #eef2fb;
 
-  --ochre-300: #e0c060;
-  --ochre-500: #c9930a;
-  --ochre-700: #8a6500;
+  --text:        #001a54;
+  --text-muted:  rgba(0,26,84,0.6);
+  --text-subtle: rgba(0,26,84,0.4);
+  --text-faint:  rgba(0,26,84,0.25);
 
-  --paper: #eef0f8;
-  --paper-dim: rgba(238,240,248,0.7);
-  --paper-muted: rgba(238,240,248,0.45);
-  --paper-subtle: rgba(238,240,248,0.25);
-
-  /* Semantic aliases */
-  --gold: #c9930a;
-  --gold-light: #e0c060;
-  --gold-dark: #8a6500;
-  --beige: #eef0f8;
-
-  --glass-bg: rgba(0, 16, 64, 0.55);
-  --glass-border: rgba(201, 147, 10, 0.22);
+  --bg:      #fff8f7;
+  --surface: #ffffff;
+  --border:  rgba(0,48,135,0.12);
 }
 
 * { box-sizing: border-box; }
 
 body {
-  font-family: 'DM Sans', sans-serif;
-  background: #00082b;
-  color: #eef0f8;
+  font-family: 'Poppins', sans-serif;
+  background: #fff8f7;
+  color: #001a54;
   min-height: 100vh;
 }
 
-/* ── Glass card ──────────────────────────────────────────────────────────── */
+/* ── Cards ───────────────────────────────────────────────────────────────── */
 .glass-card {
-  background: rgba(0, 16, 64, 0.55);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(201, 147, 10, 0.22);
+  background: #ffffff;
+  border: 1px solid rgba(0,48,135,0.12);
   border-radius: 1.25rem;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(201,147,10,0.1);
+  box-shadow: 0 4px 24px rgba(0,26,84,0.07), 0 1px 2px rgba(0,26,84,0.04);
 }
 
-/* ── Form inputs ─────────────────────────────────────────────────────────── */
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
 .glass-input {
-  background: rgba(0, 16, 64, 0.45);
-  border: 1px solid rgba(201, 147, 10, 0.28);
+  background: #ffffff;
+  border: 1px solid rgba(0,48,135,0.2);
   border-radius: 0.625rem;
-  color: #eef0f8;
+  color: #001a54;
   transition: all 0.2s;
   width: 100%;
   padding: 0.75rem 1rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 0.9rem;
   outline: none;
 }
 
 .glass-input:focus {
-  border-color: rgba(201, 147, 10, 0.65);
-  background: rgba(0, 16, 64, 0.6);
-  box-shadow: 0 0 0 3px rgba(201, 147, 10, 0.12);
+  border-color: #003087;
+  box-shadow: 0 0 0 3px rgba(0,48,135,0.1);
 }
 
-.glass-input::placeholder { color: rgba(238, 240, 248, 0.3); }
+.glass-input::placeholder { color: rgba(0,26,84,0.3); }
 
-/* ── Primary button ──────────────────────────────────────────────────────── */
+/* ── Primary button (kept as btn-gold for compatibility) ─────────────────── */
 .btn-gold {
-  background: linear-gradient(135deg, #c9930a 0%, #e0c060 50%, #8a6500 100%);
-  color: #00082b;
-  font-weight: 700;
-  font-family: 'DM Sans', sans-serif;
+  background: #003087;
+  color: #ffffff;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
   border: none;
   border-radius: 0.625rem;
   cursor: pointer;
@@ -85,58 +72,53 @@ body {
   font-size: 0.95rem;
   letter-spacing: 0.3px;
   transition: all 0.2s;
-  box-shadow: 0 4px 15px rgba(201, 147, 10, 0.35);
+  box-shadow: 0 4px 15px rgba(0,48,135,0.22);
 }
 
 .btn-gold:hover:not(:disabled) {
+  background: #002570;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(201, 147, 10, 0.5);
+  box-shadow: 0 6px 20px rgba(0,48,135,0.32);
 }
 
-.btn-gold:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-gold:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ── Gold gradient text ──────────────────────────────────────────────────── */
+/* ── Brand text (kept as gold-text for compatibility) ────────────────────── */
 .gold-text {
-  background: linear-gradient(135deg, #c9930a, #e0c060);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #003087;
 }
 
 /* ── Page background ─────────────────────────────────────────────────────── */
 .bg-broadcast {
-  background:
-    radial-gradient(ellipse at 15% 15%, rgba(0,48,135,0.25) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 85%, rgba(201,147,10,0.08) 0%, transparent 60%),
-    linear-gradient(160deg, #00082b 0%, #001040 50%, #00082b 100%);
+  background: #fff8f7;
   min-height: 100vh;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: rgba(0,16,64,0.3); }
-::-webkit-scrollbar-thumb { background: rgba(201,147,10,0.35); border-radius: 3px; }
+::-webkit-scrollbar-track { background: rgba(0,48,135,0.04); }
+::-webkit-scrollbar-thumb { background: rgba(0,48,135,0.18); border-radius: 3px; }
 
 /* ── Admin table ─────────────────────────────────────────────────────────── */
 .admin-table th {
-  background: rgba(0,48,135,0.2);
-  color: #c9930a;
+  background: rgba(0,48,135,0.05);
+  color: #003087;
   font-weight: 600;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(201,147,10,0.18);
+  border-bottom: 1px solid rgba(0,48,135,0.1);
   white-space: nowrap;
 }
 
 .admin-table td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(0,26,84,0.06);
   font-size: 0.875rem;
-  color: rgba(238,240,248,0.85);
+  color: rgba(0,26,84,0.8);
 }
 
 .admin-table tr:hover td {
-  background: rgba(0,48,135,0.12);
+  background: rgba(0,48,135,0.03);
 }

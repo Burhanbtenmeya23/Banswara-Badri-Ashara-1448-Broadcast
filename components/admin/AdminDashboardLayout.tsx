@@ -56,7 +56,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
     return (
       <div className="bg-broadcast min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 rounded-full animate-spin"
-          style={{ borderColor: 'rgba(201,147,10,0.3)', borderTopColor: '#c9930a' }} />
+          style={{ borderColor: 'rgba(0,48,135,0.18)', borderTopColor: '#003087' }} />
       </div>
     )
   }
@@ -65,10 +65,10 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
     <div className="bg-broadcast min-h-screen flex flex-col md:flex-row">
       {/* Sidebar */}
       <aside className="w-full md:w-56 shrink-0 flex flex-col"
-        style={{ borderRight: '1px solid rgba(201,147,10,0.1)', background: 'rgba(0,16,64,0.75)', backdropFilter: 'blur(10px)' }}>
-        <div className="p-5" style={{ borderBottom: '1px solid rgba(201,147,10,0.1)' }}>
+        style={{ borderRight: '1px solid rgba(0,48,135,0.08)', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)' }}>
+        <div className="p-5" style={{ borderBottom: '1px solid rgba(0,48,135,0.08)' }}>
           <p className="text-xs font-medium gold-text">Admin Panel</p>
-          <p className="text-[10px] mt-0.5" style={{ color: 'rgba(238,240,248,0.3)' }}>Banswara Badri Ashara 1448</p>
+          <p className="text-[10px] mt-0.5" style={{ color: 'rgba(0,26,84,0.3)' }}>Banswara Badri Ashara 1448</p>
         </div>
 
         <nav className="flex md:flex-col flex-row gap-1 p-3 flex-1">
@@ -78,9 +78,9 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
               <Link key={item.href} href={item.href}
                 className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all"
                 style={{
-                  background: active ? 'rgba(201,147,10,0.12)' : 'transparent',
-                  color: active ? '#c9930a' : 'rgba(238,240,248,0.55)',
-                  border: active ? '1px solid rgba(201,147,10,0.2)' : '1px solid transparent',
+                  background: active ? 'rgba(0,48,135,0.09)' : 'transparent',
+                  color: active ? '#003087' : 'rgba(0,26,84,0.55)',
+                  border: active ? '1px solid rgba(0,48,135,0.12)' : '1px solid transparent',
                 }}>
                 {item.icon}
                 <span className="hidden md:inline">{item.label}</span>
@@ -89,12 +89,12 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
           })}
         </nav>
 
-        <div className="p-3" style={{ borderTop: '1px solid rgba(201,147,10,0.1)' }}>
+        <div className="p-3" style={{ borderTop: '1px solid rgba(0,48,135,0.08)' }}>
           <button onClick={handleLogout}
             className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg text-sm transition-all"
-            style={{ color: 'rgba(238,240,248,0.4)' }}
+            style={{ color: 'rgba(0,26,84,0.4)' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fca5a5' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(238,240,248,0.4)' }}>
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(0,26,84,0.4)' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
             </svg>
