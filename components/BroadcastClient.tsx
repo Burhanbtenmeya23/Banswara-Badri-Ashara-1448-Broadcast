@@ -21,13 +21,14 @@ export default function BroadcastClient() {
   const verifyAndLoad = useCallback(async () => {
     try {
       const res = await fetch('/api/broadcast')
-      if (!res.ok) {
-        const data = await res.json()
-        if (data.error === 'session_terminated') {
-          setTerminated(true)
-          return
-        }
+      if (res.status === 401) {
+        // Only redirect if JWT is missing/invalid — not on Supabase errors
         router.replace('/')
+        return
+      }
+      if (!res.ok) {
+        setError('Could not load broadcast. Please refresh.')
+        setLoading(false)
         return
       }
       const data = await res.json()
@@ -42,21 +43,15 @@ export default function BroadcastClient() {
   const checkSession = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/verify')
-      if (!res.ok) {
-        const data = await res.json()
-        if (data.reason === 'session_terminated') {
-          setTerminated(true)
-        } else {
-          router.replace('/')
-        }
-      } else {
+      if (res.ok) {
         const data = await res.json()
         setItsId(data.itsId ?? '')
       }
+      // Don't redirect on verify failure — only the initial load redirects
     } catch {
-      // Network blip — don't logout on transient errors
+      // Network blip — ignore
     }
-  }, [router])
+  }, [])
 
   useEffect(() => {
     verifyAndLoad()

@@ -9,17 +9,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Verify session is still valid
-  const { data: user } = await supabaseAdmin
-    .from('users')
-    .select('active_session_token')
-    .eq('id', payload.userId)
-    .single()
-
-  if (!user || user.active_session_token !== payload.sessionToken) {
-    return NextResponse.json({ error: 'session_terminated' }, { status: 401 })
-  }
-
+  // Fetch the YouTube settings — no extra session check here, JWT is sufficient
   const { data: settings } = await supabaseAdmin
     .from('settings')
     .select('youtube_video_id, youtube_url')
