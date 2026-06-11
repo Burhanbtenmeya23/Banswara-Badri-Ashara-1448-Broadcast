@@ -10,24 +10,48 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Too many attempts.' }, { status: 429 })
   }
 
-  const { username, password } = await req.json()
-
-  if (
-    username !== process.env.ADMIN_USERNAME ||
-    password !== process.env.ADMIN_PASSWORD
-  ) {
-    return NextResponse.json({ error: 'Invalid credentials.' }, { status: 401 })
+  let body: { username?: string; password?: string }
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body.', step: 'parse' }, { status: 400 })
   }
 
-  const token = signAdminToken({ admin: true, username })
-  const response = NextResponse.json({ success: true })
-  response.cookies.set('admin_token', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 8,
-    path: '/',
-  })
+  const { username, password } = body
 
-  return response
+  const envUsername = process.env.ADMIN_USERNAME
+  const envPassword = process.env.ADMIN_PASSWORD
+
+  // Detailed mismatch info for debugging
+  if (username !== envUsername || password !== envPassword) {
+    return NextResponse.json({
+      error: 'Invalid credentials.',
+      debug: {
+        usernameMatch: username === envUsername,
+        passwordMatch: password === envPassword,
+        envUsernameExists: !!envUsername,
+        envPasswordExists: !!envPassword,
+        receivedUsername: username,
+      },
+    }, { status: 401 })
+  }
+
+  try {
+    const token = signAdminToken({ admin: true, username: username! })
+    const response = NextResponse.json({ success: true })
+    response.cookies.set('admin_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 8,
+      path: '/',
+    })
+    return response
+  } catch (err) {
+    return NextResponse.json({
+      error: 'Token signing failed.',
+      detail: String(err),
+      jwtSecretExists: !!process.env.ADMIN_JWT_SECRET,
+    }, { status: 500 })
+  }
 }
