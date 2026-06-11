@@ -2,13 +2,16 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import BroadcastPlayer from '@/components/BroadcastPlayer'
 
 interface BroadcastSettings {
   youtube_video_id: string | null
   youtube_url: string | null
+  broadcast_start_at: string | null
+  broadcast_end_at: string | null
 }
 
-const SESSION_CHECK_INTERVAL = 30 * 1000 // 30 seconds
+const SESSION_CHECK_INTERVAL = 30 * 1000
 
 export default function BroadcastClient() {
   const router = useRouter()
@@ -22,8 +25,7 @@ export default function BroadcastClient() {
     try {
       const res = await fetch('/api/broadcast')
       if (res.status === 401) {
-        // Only redirect if JWT is missing/invalid — not on Supabase errors
-        router.replace('/')
+        window.location.href = '/'
         return
       }
       if (!res.ok) {
@@ -38,7 +40,7 @@ export default function BroadcastClient() {
     } finally {
       setLoading(false)
     }
-  }, [router])
+  }, [])
 
   const checkSession = useCallback(async () => {
     try {
@@ -53,7 +55,7 @@ export default function BroadcastClient() {
         }
       }
     } catch {
-      // Network blip — ignore, don't kick user out
+      // Network blip — ignore
     }
   }, [])
 
@@ -62,7 +64,6 @@ export default function BroadcastClient() {
     checkSession()
   }, [verifyAndLoad, checkSession])
 
-  // Periodic session check
   useEffect(() => {
     const interval = setInterval(checkSession, SESSION_CHECK_INTERVAL)
     return () => clearInterval(interval)
@@ -70,7 +71,7 @@ export default function BroadcastClient() {
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
-    router.replace('/')
+    window.location.href = '/'
   }
 
   if (terminated) {
@@ -88,7 +89,7 @@ export default function BroadcastClient() {
           <p className="text-sm mb-6" style={{ color: 'rgba(245,239,224,0.65)' }}>
             Your session has been terminated because your account was used on another device.
           </p>
-          <button onClick={() => router.replace('/')} className="btn-gold">
+          <button onClick={() => { window.location.href = '/' }} className="btn-gold">
             Back to Login
           </button>
         </div>
@@ -100,9 +101,9 @@ export default function BroadcastClient() {
     return (
       <div className="bg-broadcast min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-10 h-10 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-4"
-            style={{ borderColor: 'rgba(201,168,76,0.5)', borderTopColor: 'transparent' }} />
-          <p className="text-sm" style={{ color: 'rgba(201,168,76,0.6)' }}>Loading broadcast...</p>
+          <div className="w-10 h-10 border-2 rounded-full animate-spin mx-auto mb-4"
+            style={{ borderColor: 'rgba(201,168,76,0.3)', borderTopColor: '#c9a84c' }} />
+          <p className="text-sm" style={{ color: 'rgba(201,168,76,0.6)' }}>Loading Broadcast...</p>
         </div>
       </div>
     )
@@ -112,7 +113,8 @@ export default function BroadcastClient() {
     return (
       <div className="bg-broadcast min-h-screen flex items-center justify-center px-4">
         <div className="glass-card p-8 text-center max-w-sm w-full">
-          <p className="text-sm mb-4" style={{ color: '#fca5a5' }}>{error}</p>
+          <p className="text-sm mb-2" style={{ color: '#fca5a5' }}>Broadcast unavailable.</p>
+          <p className="text-xs mb-5" style={{ color: 'rgba(245,239,224,0.4)' }}>Please contact the administrator.</p>
           <button onClick={verifyAndLoad} className="btn-gold">Retry</button>
         </div>
       </div>
@@ -120,10 +122,10 @@ export default function BroadcastClient() {
   }
 
   return (
-    <div className="bg-broadcast min-h-screen flex flex-col">
+    <div className="bg-broadcast min-h-screen flex flex-col" style={{ touchAction: 'pan-y' }}>
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: '1px solid rgba(201,168,76,0.12)', background: 'rgba(13,10,3,0.6)', backdropFilter: 'blur(10px)' }}>
+        style={{ borderBottom: '1px solid rgba(201,168,76,0.12)', background: 'rgba(13,10,3,0.7)', backdropFilter: 'blur(10px)' }}>
         <div>
           <h1 className="text-sm font-semibold" style={{ color: '#f5efe0' }}>
             Banswara Badri Ashara <span className="gold-text">1448</span>
@@ -139,48 +141,14 @@ export default function BroadcastClient() {
           )}
           <button onClick={handleLogout}
             className="text-xs px-3 py-1.5 rounded transition-all"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(245,239,224,0.6)' }}
-            onMouseEnter={e => { (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.08)' }}
-            onMouseLeave={e => { (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}>
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(245,239,224,0.6)' }}>
             Logout
           </button>
         </div>
       </header>
 
-      {/* Video Player */}
-      <main className="flex-1 flex flex-col items-center justify-center px-2 py-4">
-        {settings?.youtube_video_id ? (
-          <div className="w-full max-w-4xl">
-            <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-              <iframe
-                className="absolute inset-0 w-full h-full rounded-xl"
-                src={`https://www.youtube.com/embed/${settings.youtube_video_id}?autoplay=1&rel=0&modestbranding=1`}
-                title="Banswara Badri Ashara 1448 Broadcast"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                style={{ border: '1px solid rgba(201,168,76,0.15)' }}
-              />
-            </div>
-            <p className="text-center text-xs mt-3" style={{ color: 'rgba(245,239,224,0.25)' }}>
-              Session verified every 30 seconds — single device only
-            </p>
-          </div>
-        ) : (
-          <div className="glass-card p-10 text-center max-w-md">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5">
-                <polygon points="23 7 16 12 23 17 23 7"/>
-                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-              </svg>
-            </div>
-            <h2 className="font-medium mb-2" style={{ color: '#f5efe0' }}>Broadcast Not Available</h2>
-            <p className="text-sm" style={{ color: 'rgba(245,239,224,0.45)' }}>
-              The broadcast has not started yet. Please check back shortly.
-            </p>
-          </div>
-        )}
-      </main>
+      {/* Player */}
+      <BroadcastPlayer settings={settings} />
     </div>
   )
 }

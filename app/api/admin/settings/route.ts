@@ -1,19 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/adminGuard'
-
-function extractVideoId(url: string): string | null {
-  try {
-    const u = new URL(url)
-    if (u.hostname === 'youtu.be') return u.pathname.slice(1)
-    if (u.hostname.includes('youtube.com')) {
-      return u.searchParams.get('v')
-    }
-    return null
-  } catch {
-    return null
-  }
-}
+import { extractVideoId } from '@/lib/youtube'
 
 export async function GET(req: NextRequest) {
   const guard = requireAdmin(req)
@@ -33,44 +21,41 @@ export async function POST(req: NextRequest) {
   const guard = requireAdmin(req)
   if (guard) return guard
 
-  const { youtube_url } = await req.json()
+  const { youtube_url, broadcast_start_at, broadcast_end_at } = await req.json()
 
-  if (!youtube_url) {
-    return NextResponse.json({ error: 'YouTube URL is required.' }, { status: 400 })
-  }
-
-  const video_id = extractVideoId(youtube_url)
-  if (!video_id) {
+  const video_id = youtube_url ? extractVideoId(youtube_url) : null
+  if (youtube_url && !video_id) {
     return NextResponse.json({ error: 'Invalid YouTube URL.' }, { status: 400 })
   }
 
-  // Upsert single settings row
   const { data: existing } = await supabaseAdmin
     .from('settings')
     .select('id')
     .limit(1)
     .single()
 
+  const payload: Record<string, string | null> = {
+    updated_at: new Date().toISOString(),
+  }
+  if (youtube_url !== undefined) {
+    payload.youtube_url = youtube_url
+    payload.youtube_video_id = video_id
+  }
+  if (broadcast_start_at !== undefined) payload.broadcast_start_at = broadcast_start_at || null
+  if (broadcast_end_at !== undefined) payload.broadcast_end_at = broadcast_end_at || null
+
   let result
   if (existing) {
     result = await supabaseAdmin
       .from('settings')
-      .update({
-        youtube_url,
-        youtube_video_id: video_id,
-        updated_at: new Date().toISOString(),
-      })
+      .update(payload)
       .eq('id', existing.id)
       .select()
       .single()
   } else {
     result = await supabaseAdmin
       .from('settings')
-      .insert({
-        youtube_url,
-        youtube_video_id: video_id,
-        updated_at: new Date().toISOString(),
-      })
+      .insert(payload)
       .select()
       .single()
   }

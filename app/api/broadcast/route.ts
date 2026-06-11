@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
   const { data: settings } = await supabaseAdmin
     .from('settings')
-    .select('youtube_video_id, youtube_url')
+    .select('youtube_video_id, youtube_url, broadcast_start_at, broadcast_end_at')
     .limit(1)
     .single()
 
