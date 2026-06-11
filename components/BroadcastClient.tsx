@@ -122,7 +122,12 @@ export default function BroadcastClient() {
   }
 
   return (
-    <div className="bg-broadcast min-h-screen flex flex-col" style={{ touchAction: 'pan-y' }}>
+    <div
+      className="bg-broadcast min-h-screen flex flex-col select-none"
+      style={{ touchAction: 'pan-y', WebkitUserSelect: 'none', MozUserSelect: 'none' } as React.CSSProperties}
+      onContextMenu={e => e.preventDefault()}
+      onDragStart={e => e.preventDefault()}
+    >
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: '1px solid rgba(201,168,76,0.12)', background: 'rgba(13,10,3,0.7)', backdropFilter: 'blur(10px)' }}>
@@ -148,7 +153,7 @@ export default function BroadcastClient() {
       </header>
 
       {/* Player */}
-      <BroadcastPlayer settings={settings} />
+      <BroadcastPlayer settings={settings} itsId={itsId} />
     </div>
   )
 }

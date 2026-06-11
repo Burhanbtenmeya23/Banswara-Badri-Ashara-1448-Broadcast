@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getYouTubeEmbedUrl } from '@/lib/youtube'
+import YouTubePlayer from '@/components/YouTubePlayer'
 
 interface BroadcastSettings {
   youtube_video_id: string | null
@@ -53,9 +53,11 @@ function formatDateTime(iso: string): string {
 export default function BroadcastPlayer({
   settings,
   previewState,
+  itsId,
 }: {
   settings: BroadcastSettings | null
   previewState?: BroadcastState | null
+  itsId?: string
 }) {
   const [state, setState] = useState<BroadcastState>('loading')
   const [countdown, setCountdown] = useState<Countdown>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
@@ -181,18 +183,7 @@ export default function BroadcastPlayer({
           </span>
         </div>
 
-        {/* 16:9 Player */}
-        <div className="relative w-full overflow-hidden rounded-2xl">
-          <div className="aspect-video">
-            <iframe
-              src={getYouTubeEmbedUrl(settings!.youtube_url ?? '')}
-              className="w-full h-full"
-              title="Broadcast Player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
-          </div>
-        </div>
+        <YouTubePlayer url={settings!.youtube_url ?? ''} itsId={itsId} />
       </div>
     </div>
   )

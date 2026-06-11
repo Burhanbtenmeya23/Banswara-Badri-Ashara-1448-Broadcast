@@ -1,0 +1,301 @@
+'use client'
+
+import { useEffect, useRef, useState, useCallback, useId } from 'react'
+import Script from 'next/script'
+import { extractYouTubeVideoId } from '@/lib/youtube'
+
+// Minimal YT types — avoids needing @types/youtube
+declare global {
+  interface Window {
+    YT: {
+      Player: new (
+        el: string | HTMLElement,
+        opts: {
+          videoId?: string
+          host?: string
+          playerVars?: Record<string, number | string>
+          events?: {
+            onReady?: (e: { target: YTPlayer }) => void
+            onStateChange?: (e: { data: number; target: YTPlayer }) => void
+            onError?: (e: { data: number }) => void
+          }
+        }
+      ) => YTPlayer
+      PlayerState: { PAUSED: number; PLAYING: number; ENDED: number }
+    }
+    onYouTubeIframeAPIReady?: () => void
+  }
+  interface YTPlayer {
+    playVideo(): void
+    pauseVideo(): void
+    destroy(): void
+    getPlayerState(): number
+  }
+}
+
+const BLOCKED_KEYS = new Set([
+  'Space', 'KeyK', 'KeyJ', 'KeyL',
+  'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+  'Home', 'End',
+])
+
+const POSITIONS: React.CSSProperties[] = [
+  { top: '10px', left: '10px' },
+  { top: '10px', right: '10px' },
+  { bottom: '50px', left: '10px' },
+  { bottom: '50px', right: '10px' },
+]
+
+interface Props {
+  url: string
+  itsId?: string
+}
+
+export default function YouTubePlayer({ url, itsId }: Props) {
+  const uid = useId().replace(/:/g, '')
+  const divId = `yt-${uid}`
+  const containerRef = useRef<HTMLDivElement>(null)
+  const playerRef = useRef<YTPlayer | null>(null)
+  const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [apiReady, setApiReady] = useState(false)
+  const [playerReady, setPlayerReady] = useState(false)
+  const [posIdx, setPosIdx] = useState(0)
+  const [showWelcomeBack, setShowWelcomeBack] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  const videoId = extractYouTubeVideoId(url) ?? ''
+
+  const initPlayer = useCallback(() => {
+    if (!window.YT?.Player || !videoId) return
+    playerRef.current?.destroy()
+    playerRef.current = new window.YT.Player(divId, {
+      videoId,
+      host: 'https://www.youtube-nocookie.com',
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        disablekb: 1,
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1,
+        fs: 0,            // we provide our own fullscreen
+        iv_load_policy: 3, // hide annotations
+        cc_load_policy: 0,
+        origin: typeof window !== 'undefined' ? window.location.origin : '',
+      },
+      events: {
+        onReady(e) {
+          setPlayerReady(true)
+          e.target.playVideo()
+        },
+        onStateChange(e) {
+          // Auto-resume if paused — enforces viewer-only mode
+          if (e.data === window.YT.PlayerState.PAUSED) {
+            if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current)
+            resumeTimerRef.current = setTimeout(() => {
+              playerRef.current?.playVideo()
+            }, 250)
+          }
+        },
+      },
+    })
+  }, [videoId, divId])
+
+  // Init player once API signals ready
+  useEffect(() => {
+    if (apiReady) initPlayer()
+    return () => {
+      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current)
+    }
+  }, [apiReady, initPlayer])
+
+  // Destroy on unmount
+  useEffect(() => () => { playerRef.current?.destroy() }, [])
+
+  // Watermark position rotation (30–60 s)
+  useEffect(() => {
+    function rotate() {
+      setPosIdx(p => (p + 1) % POSITIONS.length)
+    }
+    const ms = 30000 + Math.random() * 30000
+    const t = setTimeout(function tick() {
+      rotate()
+      const next = 30000 + Math.random() * 30000
+      setTimeout(tick, next)
+    }, ms)
+    return () => clearTimeout(t)
+  }, [])
+
+  // Tab visibility / window focus → welcome back
+  useEffect(() => {
+    let hideTimer: ReturnType<typeof setTimeout>
+    function onReturn() {
+      setShowWelcomeBack(true)
+      clearTimeout(hideTimer)
+      hideTimer = setTimeout(() => setShowWelcomeBack(false), 4000)
+      // Ensure stream resumes
+      playerRef.current?.playVideo()
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') onReturn()
+    })
+    window.addEventListener('focus', onReturn)
+    return () => {
+      clearTimeout(hideTimer)
+      document.removeEventListener('visibilitychange', onReturn)
+      window.removeEventListener('focus', onReturn)
+    }
+  }, [])
+
+  // Block video-related hotkeys at capture phase
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (BLOCKED_KEYS.has(e.code)) {
+        e.preventDefault()
+        e.stopImmediatePropagation()
+      }
+    }
+    document.addEventListener('keydown', onKey, true)
+    return () => document.removeEventListener('keydown', onKey, true)
+  }, [])
+
+  // Track fullscreen state for button icon swap
+  useEffect(() => {
+    function onChange() {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+
+  function toggleFullscreen() {
+    const el = containerRef.current
+    if (!el) return
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => null)
+    } else {
+      el.requestFullscreen().catch(() => null)
+    }
+  }
+
+  // Prevent context menu and selection on the container
+  function blockContext(e: React.MouseEvent) {
+    e.preventDefault()
+  }
+
+  const wPos = POSITIONS[posIdx]
+
+  return (
+    <>
+      <Script
+        src="https://www.youtube.com/iframe_api"
+        strategy="afterInteractive"
+        onLoad={() => {
+          if (window.YT?.Player) {
+            setApiReady(true)
+          } else {
+            const prev = window.onYouTubeIframeAPIReady
+            window.onYouTubeIframeAPIReady = () => {
+              prev?.()
+              setApiReady(true)
+            }
+          }
+        }}
+      />
+
+      <div
+        ref={containerRef}
+        className="relative w-full overflow-hidden rounded-2xl select-none"
+        style={{ WebkitUserSelect: 'none', MozUserSelect: 'none' } as React.CSSProperties}
+        onContextMenu={blockContext}
+        onDragStart={e => e.preventDefault()}
+      >
+        {/* IFrame API target */}
+        <div className="aspect-video bg-black">
+          <div id={divId} className="w-full h-full" />
+        </div>
+
+        {/* Interaction blocker — sits above iframe, below controls */}
+        <div
+          className="absolute inset-0 z-10"
+          onContextMenu={blockContext}
+          onDragStart={e => e.preventDefault()}
+        />
+
+        {/* Watermark */}
+        {itsId && (
+          <div
+            className="absolute z-20 pointer-events-none transition-all duration-[1200ms] ease-in-out"
+            style={{
+              ...wPos,
+              background: 'rgba(0,0,0,0.4)',
+              backdropFilter: 'blur(3px)',
+              padding: '3px 8px',
+              borderRadius: '4px',
+              fontSize: '10px',
+              color: 'rgba(255,255,255,0.5)',
+              fontFamily: 'monospace',
+              letterSpacing: '0.06em',
+              userSelect: 'none',
+            }}
+          >
+            ITS: {itsId}
+          </div>
+        )}
+
+        {/* Fullscreen button */}
+        <button
+          onClick={toggleFullscreen}
+          className="absolute z-20 transition-opacity duration-200 opacity-0 hover:opacity-100 focus:opacity-100"
+          style={{
+            bottom: '10px', right: '10px',
+            background: 'rgba(0,0,0,0.65)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '6px',
+            padding: '7px',
+            cursor: 'pointer',
+            color: 'white',
+          }}
+          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+        >
+          {isFullscreen ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/>
+            </svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+            </svg>
+          )}
+        </button>
+
+        {/* Welcome back toast */}
+        <div
+          className="absolute z-30 top-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-xs font-medium transition-all duration-500 pointer-events-none whitespace-nowrap"
+          style={{
+            background: 'rgba(13,10,3,0.88)',
+            border: '1px solid rgba(201,168,76,0.35)',
+            color: '#c9a84c',
+            backdropFilter: 'blur(8px)',
+            opacity: showWelcomeBack ? 1 : 0,
+            transform: `translateX(-50%) translateY(${showWelcomeBack ? '0' : '-8px'})`,
+          }}
+        >
+          Welcome back to the broadcast.
+        </div>
+
+        {/* Loading overlay */}
+        {!playerReady && (
+          <div
+            className="absolute inset-0 z-40 flex items-center justify-center"
+            style={{ background: 'rgba(13,10,3,0.9)' }}
+          >
+            <div className="w-8 h-8 border-2 rounded-full animate-spin"
+              style={{ borderColor: 'rgba(201,168,76,0.3)', borderTopColor: '#c9a84c' }} />
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
