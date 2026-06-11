@@ -46,12 +46,15 @@ export default function AdminLoginForm() {
 
       <div className="relative w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-3"
-            style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0110 0v4"/>
-            </svg>
+          <div className="flex items-center justify-center mb-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://asharamubaraka.net/images/am48-logo-v3.svg"
+              alt="Ashara Mubaraka 1448"
+              width={80}
+              height={80}
+              style={{ filter: 'drop-shadow(0 0 8px rgba(201,168,76,0.25))', opacity: 0.85 }}
+            />
           </div>
           <h1 className="text-lg font-semibold" style={{ color: '#f5efe0' }}>Admin Access</h1>
           <p className="text-xs mt-1" style={{ color: 'rgba(201,168,76,0.5)' }}>Restricted — Authorized Personnel Only</p>

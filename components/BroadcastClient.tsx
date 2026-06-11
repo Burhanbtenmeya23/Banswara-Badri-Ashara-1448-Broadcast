@@ -131,11 +131,21 @@ export default function BroadcastClient() {
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: '1px solid rgba(201,168,76,0.12)', background: 'rgba(13,10,3,0.7)', backdropFilter: 'blur(10px)' }}>
-        <div>
-          <h1 className="text-sm font-semibold" style={{ color: '#f5efe0' }}>
-            Banswara Badri Ashara <span className="gold-text">1448</span>
-          </h1>
-          <p className="text-xs" style={{ color: 'rgba(201,168,76,0.5)' }}>Live Broadcast</p>
+        <div className="flex items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://asharamubaraka.net/images/am48-logo-v3.svg"
+            alt="Ashara Mubaraka 1448"
+            width={36}
+            height={36}
+            style={{ filter: 'drop-shadow(0 0 6px rgba(201,168,76,0.3))' }}
+          />
+          <div>
+            <h1 className="text-sm font-semibold" style={{ color: '#f5efe0' }}>
+              Banswara Badri Ashara <span className="gold-text">1448</span>
+            </h1>
+            <p className="text-xs" style={{ color: 'rgba(201,168,76,0.5)' }}>Live Broadcast</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {itsId && (

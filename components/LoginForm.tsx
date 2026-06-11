@@ -52,13 +52,15 @@ export default function LoginForm() {
       <div className="relative w-full max-w-sm">
         {/* Logo / Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4"
-            style={{ background: 'linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.05))', border: '1px solid rgba(201,168,76,0.3)' }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#c9a84c" strokeWidth="1.5" strokeLinejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="#c9a84c" strokeWidth="1.5" strokeLinejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="#c9a84c" strokeWidth="1.5" strokeLinejoin="round"/>
-            </svg>
+          <div className="flex items-center justify-center mb-5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://asharamubaraka.net/images/am48-logo-v3.svg"
+              alt="Ashara Mubaraka 1448"
+              width={120}
+              height={120}
+              style={{ filter: 'drop-shadow(0 0 12px rgba(201,168,76,0.35))' }}
+            />
           </div>
           <h1 className="text-xl font-semibold text-[#f5efe0] leading-tight mb-1">
             Banswara Badri Ashara
