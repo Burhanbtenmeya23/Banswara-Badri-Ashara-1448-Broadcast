@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 
 const navItems = [
@@ -27,39 +26,7 @@ const navItems = [
 ]
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
   const pathname = usePathname()
-  const [checking, setChecking] = useState(true)
-
-  useEffect(() => {
-    async function verify() {
-      try {
-        const res = await fetch('/api/admin/stats')
-        if (res.status === 401) {
-          router.replace('/admin/login')
-        }
-      } catch {
-        router.replace('/admin/login')
-      } finally {
-        setChecking(false)
-      }
-    }
-    verify()
-  }, [router])
-
-  async function handleLogout() {
-    await fetch('/api/admin/logout', { method: 'POST' })
-    router.replace('/admin/login')
-  }
-
-  if (checking) {
-    return (
-      <div className="bg-broadcast min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 rounded-full animate-spin"
-          style={{ borderColor: 'rgba(201,168,76,0.3)', borderTopColor: '#c9a84c' }} />
-      </div>
-    )
-  }
 
   return (
     <div className="bg-broadcast min-h-screen flex flex-col md:flex-row">
@@ -90,20 +57,6 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
             )
           })}
         </nav>
-
-        {/* Logout */}
-        <div className="p-3" style={{ borderTop: '1px solid rgba(201,168,76,0.1)' }}>
-          <button onClick={handleLogout}
-            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg text-sm transition-all"
-            style={{ color: 'rgba(245,239,224,0.4)' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fca5a5' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(245,239,224,0.4)' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
-            </svg>
-            <span className="hidden md:inline">Logout</span>
-          </button>
-        </div>
       </aside>
 
       {/* Main */}

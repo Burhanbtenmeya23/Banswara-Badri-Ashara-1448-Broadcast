@@ -1,17 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyUserToken, verifyAdminToken } from '@/lib/auth'
+import { verifyUserToken } from '@/lib/auth'
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-
-  // Protect admin dashboard pages
-  if (pathname.startsWith('/admin/dashboard')) {
-    const adminToken = req.cookies.get('admin_token')?.value
-    if (!adminToken || !verifyAdminToken(adminToken)) {
-      return NextResponse.redirect(new URL('/admin/login', req.url))
-    }
-    return NextResponse.next()
-  }
 
   // Protect broadcast page
   if (pathname === '/broadcast') {
@@ -34,5 +25,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/broadcast', '/admin/dashboard/:path*'],
+  matcher: ['/', '/broadcast'],
 }
