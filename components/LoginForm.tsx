@@ -30,7 +30,8 @@ export default function LoginForm() {
         return
       }
 
-      router.push('/broadcast')
+      // Hard navigation so the cookie is fully committed before the page loads
+      window.location.href = '/broadcast'
     } catch {
       setError('Network error. Please check your connection.')
     } finally {

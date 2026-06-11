@@ -1,19 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl
-
-  // Redirect already-logged-in users away from the login page
-  if (pathname === '/') {
-    const token = req.cookies.get('auth_token')?.value
-    if (token) {
-      return NextResponse.redirect(new URL('/broadcast', req.url))
-    }
-  }
-
+// No server-side redirects — auth is handled client-side via /api/broadcast
+export function middleware(_req: NextRequest) {
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/'],
+  matcher: [],
 }
