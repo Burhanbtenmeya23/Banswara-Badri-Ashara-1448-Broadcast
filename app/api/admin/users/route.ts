@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
 import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/adminGuard'
 
@@ -36,25 +35,19 @@ export async function POST(req: NextRequest) {
   const guard = requireAdmin(req)
   if (guard) return guard
 
-  const { its_id, password } = await req.json()
+  const { its_id } = await req.json()
 
-  if (!its_id || !password) {
-    return NextResponse.json({ error: 'ITS ID and password are required.' }, { status: 400 })
+  if (!its_id) {
+    return NextResponse.json({ error: 'ITS ID is required.' }, { status: 400 })
   }
 
   if (!/^\d{8}$/.test(its_id.trim())) {
     return NextResponse.json({ error: 'ITS ID must be exactly 8 digits.' }, { status: 400 })
   }
 
-  if (password.length < 6) {
-    return NextResponse.json({ error: 'Password must be at least 6 characters.' }, { status: 400 })
-  }
-
-  const password_hash = await bcrypt.hash(password, 12)
-
   const { data, error } = await supabaseAdmin
     .from('users')
-    .insert({ its_id: its_id.trim(), password_hash })
+    .insert({ its_id: its_id.trim(), password_hash: '' })
     .select('id, its_id, created_at')
     .single()
 

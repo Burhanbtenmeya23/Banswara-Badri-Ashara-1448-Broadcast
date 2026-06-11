@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
 import { supabaseAdmin } from '@/lib/supabase'
 import { signUserToken, generateSessionToken } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/ratelimit'
@@ -12,26 +11,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Too many login attempts. Please try again in 15 minutes.' }, { status: 429 })
   }
 
-  let body: { its_id?: string; password?: string }
+  let body: { its_id?: string }
   try {
     body = await req.json()
   } catch {
-    return NextResponse.json({ error: 'Invalid request body.', step: 'parse' }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 })
   }
 
-  const { its_id, password } = body
+  const { its_id } = body
 
-  if (!its_id || !password) {
-    return NextResponse.json({ error: 'ITS ID and password are required.', step: 'missing_fields' }, { status: 400 })
+  if (!its_id) {
+    return NextResponse.json({ error: 'ITS ID is required.' }, { status: 400 })
   }
 
   if (!/^\d{8}$/.test(its_id.trim())) {
-    return NextResponse.json({
-      error: 'Invalid ITS ID format.',
-      step: 'validation',
-      received: its_id,
-      length: its_id.trim().length,
-    }, { status: 400 })
+    return NextResponse.json({ error: 'ITS ID must be exactly 8 digits.' }, { status: 400 })
   }
 
   const { data: user, error: dbError } = await supabaseAdmin
@@ -41,17 +35,7 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (dbError || !user) {
-    return NextResponse.json({
-      error: 'Invalid ITS ID or password.',
-      step: 'user_lookup',
-      dbError: dbError?.message ?? null,
-      userFound: !!user,
-    }, { status: 401 })
-  }
-
-  const passwordMatch = await bcrypt.compare(password, user.password_hash)
-  if (!passwordMatch) {
-    return NextResponse.json({ error: 'Invalid ITS ID or password.', step: 'password_mismatch' }, { status: 401 })
+    return NextResponse.json({ error: 'ITS ID not found. Please contact the administrator.' }, { status: 401 })
   }
 
   const sessionToken = generateSessionToken()
@@ -81,11 +65,6 @@ export async function POST(req: NextRequest) {
     })
     return response
   } catch (err) {
-    return NextResponse.json({
-      error: 'Token signing failed.',
-      step: 'jwt_sign',
-      detail: String(err),
-      jwtSecretExists: !!process.env.JWT_SECRET,
-    }, { status: 500 })
+    return NextResponse.json({ error: 'Token signing failed.', detail: String(err) }, { status: 500 })
   }
 }

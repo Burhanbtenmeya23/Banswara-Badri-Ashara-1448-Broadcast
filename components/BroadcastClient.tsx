@@ -144,19 +144,19 @@ export default function BroadcastClient() {
             <h1 className="text-sm font-semibold" style={{ color: '#001a54' }}>
               Banswara Badri Ashara <span className="gold-text">1448</span>
             </h1>
-            <p className="text-xs" style={{ color: 'rgba(0,48,135,0.3)' }}>Live Broadcast</p>
+            <p className="text-xs" style={{ color: 'rgba(0,26,84,0.55)' }}>Live Broadcast</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           {itsId && (
             <span className="text-xs px-2 py-1 rounded"
-              style={{ background: 'rgba(0,48,135,0.08)', color: 'rgba(0,48,135,0.55)', border: '1px solid rgba(0,48,135,0.12)' }}>
+              style={{ background: 'rgba(0,48,135,0.08)', color: '#003087', border: '1px solid rgba(0,48,135,0.2)', fontWeight: 500 }}>
               {itsId}
             </span>
           )}
           <button onClick={handleLogout}
             className="text-xs px-3 py-1.5 rounded transition-all"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(238,240,248,0.6)' }}>
+            style={{ background: 'rgba(0,48,135,0.06)', border: '1px solid rgba(0,48,135,0.18)', color: '#003087' }}>
             Logout
           </button>
         </div>

@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
 import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/adminGuard'
 
 interface CsvRow {
   its_id: string
-  password: string
 }
 
 export async function POST(req: NextRequest) {
@@ -26,7 +24,6 @@ export async function POST(req: NextRequest) {
 
   for (const row of users) {
     const its_id = String(row.its_id ?? '').trim()
-    const password = String(row.password ?? '').trim()
 
     if (!/^\d{8}$/.test(its_id)) {
       results.failed++
@@ -34,17 +31,9 @@ export async function POST(req: NextRequest) {
       continue
     }
 
-    if (password.length < 6) {
-      results.failed++
-      results.errors.push(`Password too short for ITS ID: ${its_id}`)
-      continue
-    }
-
-    const password_hash = await bcrypt.hash(password, 12)
-
     const { error } = await supabaseAdmin
       .from('users')
-      .upsert({ its_id, password_hash, updated_at: new Date().toISOString() }, {
+      .upsert({ its_id, password_hash: '', updated_at: new Date().toISOString() }, {
         onConflict: 'its_id',
         ignoreDuplicates: false,
       })

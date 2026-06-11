@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
 import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/adminGuard'
 
@@ -8,7 +7,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (guard) return guard
 
   const { id } = await params
-  const { its_id, password } = await req.json()
+  const { its_id } = await req.json()
 
   const updates: Record<string, string> = { updated_at: new Date().toISOString() }
 
@@ -17,15 +16,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'ITS ID must be exactly 8 digits.' }, { status: 400 })
     }
     updates.its_id = its_id.trim()
-  }
-
-  if (password) {
-    if (password.length < 6) {
-      return NextResponse.json({ error: 'Password must be at least 6 characters.' }, { status: 400 })
-    }
-    updates.password_hash = await bcrypt.hash(password, 12)
-    // Invalidate existing sessions when password changes
-    updates.active_session_token = ''
   }
 
   const { data, error } = await supabaseAdmin
@@ -51,7 +41,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   const { id } = await params
 
-  // Delete sessions first
   await supabaseAdmin.from('sessions').delete().eq('user_id', id)
 
   const { error } = await supabaseAdmin.from('users').delete().eq('id', id)

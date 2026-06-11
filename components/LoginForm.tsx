@@ -1,15 +1,11 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function LoginForm() {
-  const router = useRouter()
   const [itsId, setItsId] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -20,7 +16,7 @@ export default function LoginForm() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ its_id: itsId.trim(), password }),
+        body: JSON.stringify({ its_id: itsId.trim() }),
       })
 
       const data = await res.json()
@@ -30,7 +26,6 @@ export default function LoginForm() {
         return
       }
 
-      // Hard navigation so the cookie is fully committed before the page loads
       window.location.href = '/broadcast'
     } catch {
       setError('Network error. Please check your connection.')
@@ -75,20 +70,20 @@ export default function LoginForm() {
 
         {/* Card */}
         <div className="glass-card p-7">
-          <h2 className="text-center text-[rgba(0,26,84,0.7)] text-sm mb-6 font-normal">
-            Enter your credentials to access the broadcast
+          <h2 className="text-center text-[rgba(0,26,84,0.6)] text-sm mb-6 font-normal">
+            Enter your ITS ID to access the broadcast
           </h2>
 
           {error && (
             <div className="mb-4 px-4 py-3 rounded-lg text-sm text-center"
-              style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#fca5a5' }}>
+              style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#dc2626' }}>
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(0,48,135,0.65)' }}>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#003087' }}>
                 ITS ID
               </label>
               <input
@@ -101,45 +96,9 @@ export default function LoginForm() {
                 value={itsId}
                 onChange={(e) => setItsId(e.target.value.replace(/\D/g, '').slice(0, 8))}
                 required
+                autoFocus
                 autoComplete="username"
               />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(0,48,135,0.65)' }}>
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  className="glass-input pr-10"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 opacity-40 hover:opacity-70 transition-opacity"
-                  style={{ color: '#001a54' }}
-                  tabIndex={-1}
-                >
-                  {showPassword ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
-                      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
-                      <line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  )}
-                </button>
-              </div>
             </div>
 
             <button type="submit" className="btn-gold mt-2" disabled={loading}>
@@ -157,7 +116,7 @@ export default function LoginForm() {
           </form>
         </div>
 
-        <p className="text-center text-xs mt-6" style={{ color: 'rgba(0,26,84,0.2)' }}>
+        <p className="text-center text-xs mt-6" style={{ color: 'rgba(0,26,84,0.35)' }}>
           Access restricted. Contact admin for credentials.
         </p>
       </div>

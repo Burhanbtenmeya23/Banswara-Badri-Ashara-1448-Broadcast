@@ -47,7 +47,7 @@ export default function UsersManager() {
   const [editUser, setEditUser] = useState<User | null>(null)
   const [deleteUser, setDeleteUser] = useState<User | null>(null)
   const [importModal, setImportModal] = useState(false)
-  const [formData, setFormData] = useState({ its_id: '', password: '' })
+  const [formData, setFormData] = useState({ its_id: '' })
   const [formError, setFormError] = useState('')
   const [formLoading, setFormLoading] = useState(false)
   const [importResult, setImportResult] = useState<{ success: number; failed: number; errors: string[] } | null>(null)
@@ -82,7 +82,7 @@ export default function UsersManager() {
       const data = await res.json()
       if (!res.ok) { setFormError(data.error); return }
       setAddModal(false)
-      setFormData({ its_id: '', password: '' })
+      setFormData({ its_id: '' })
       loadUsers()
     } finally {
       setFormLoading(false)
@@ -97,7 +97,6 @@ export default function UsersManager() {
     try {
       const body: Record<string, string> = {}
       if (formData.its_id && formData.its_id !== editUser.its_id) body.its_id = formData.its_id
-      if (formData.password) body.password = formData.password
 
       const res = await fetch(`/api/admin/users/${editUser.id}`, {
         method: 'PUT',
@@ -107,7 +106,7 @@ export default function UsersManager() {
       const data = await res.json()
       if (!res.ok) { setFormError(data.error); return }
       setEditUser(null)
-      setFormData({ its_id: '', password: '' })
+      setFormData({ its_id: '' })
       loadUsers()
     } finally {
       setFormLoading(false)
@@ -128,7 +127,7 @@ export default function UsersManager() {
 
   function openEdit(user: User) {
     setEditUser(user)
-    setFormData({ its_id: user.its_id, password: '' })
+    setFormData({ its_id: user.its_id })
     setFormError('')
   }
 
@@ -194,7 +193,7 @@ export default function UsersManager() {
             style={{ background: 'rgba(0,48,135,0.08)', border: '1px solid rgba(0,48,135,0.15)', color: '#003087' }}>
             Export CSV
           </button>
-          <button onClick={() => { setAddModal(true); setFormData({ its_id: '', password: '' }); setFormError('') }}
+          <button onClick={() => { setAddModal(true); setFormData({ its_id: '' }); setFormError('') }}
             className="btn-gold px-4 py-2 text-xs" style={{ width: 'auto' }}>
             + Add User
           </button>
@@ -296,11 +295,6 @@ export default function UsersManager() {
               <input type="text" className="glass-input" placeholder="12345678"
                 value={formData.its_id} onChange={e => setFormData(f => ({ ...f, its_id: e.target.value.replace(/\D/g, '').slice(0, 8) }))} required />
             </div>
-            <div>
-              <label className="block text-xs mb-1.5" style={{ color: 'rgba(0,48,135,0.65)' }}>Password</label>
-              <input type="password" className="glass-input" placeholder="Min 6 characters"
-                value={formData.password} onChange={e => setFormData(f => ({ ...f, password: e.target.value }))} required />
-            </div>
             <button type="submit" className="btn-gold" disabled={formLoading}>
               {formLoading ? 'Adding...' : 'Add User'}
             </button>
@@ -318,14 +312,6 @@ export default function UsersManager() {
               <input type="text" className="glass-input"
                 value={formData.its_id} onChange={e => setFormData(f => ({ ...f, its_id: e.target.value.replace(/\D/g, '').slice(0, 8) }))} />
             </div>
-            <div>
-              <label className="block text-xs mb-1.5" style={{ color: 'rgba(0,48,135,0.65)' }}>New Password <span style={{ color: 'rgba(0,26,84,0.3)' }}>(leave blank to keep)</span></label>
-              <input type="password" className="glass-input" placeholder="New password..."
-                value={formData.password} onChange={e => setFormData(f => ({ ...f, password: e.target.value }))} />
-            </div>
-            <p className="text-xs" style={{ color: 'rgba(0,26,84,0.35)' }}>
-              Changing password will terminate active sessions.
-            </p>
             <button type="submit" className="btn-gold" disabled={formLoading}>
               {formLoading ? 'Saving...' : 'Save Changes'}
             </button>
@@ -343,7 +329,7 @@ export default function UsersManager() {
           <div className="flex gap-3">
             <button onClick={() => setDeleteUser(null)}
               className="flex-1 py-2.5 text-sm rounded-lg"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(238,240,248,0.6)' }}>
+              style={{ background: 'rgba(0,48,135,0.06)', border: '1px solid rgba(0,48,135,0.15)', color: '#003087' }}>
               Cancel
             </button>
             <button onClick={handleDelete} disabled={formLoading}
@@ -360,9 +346,9 @@ export default function UsersManager() {
         <Modal title="Import Users from CSV" onClose={() => { setImportModal(false); setImportResult(null) }}>
           <div className="space-y-4">
             <div className="p-4 rounded-lg text-xs" style={{ background: 'rgba(201,147,10,0.06)', border: '1px solid rgba(0,48,135,0.1)' }}>
-              <p className="font-medium mb-2" style={{ color: '#003087' }}>CSV Format Required:</p>
-              <p className="font-mono" style={{ color: 'rgba(238,240,248,0.6)' }}>its_id,password</p>
-              <p className="font-mono" style={{ color: 'rgba(238,240,248,0.6)' }}>12345678,password123</p>
+              <p className="font-medium mb-2" style={{ color: '#003087' }}>CSV Format (one ITS ID per row):</p>
+              <p className="font-mono" style={{ color: 'rgba(0,26,84,0.65)' }}>its_id</p>
+              <p className="font-mono" style={{ color: 'rgba(0,26,84,0.65)' }}>12345678</p>
               <p className="mt-2" style={{ color: 'rgba(0,26,84,0.4)' }}>
                 Existing ITS IDs will be updated. Max 500 rows.
               </p>
@@ -370,12 +356,12 @@ export default function UsersManager() {
 
             <input ref={fileRef} type="file" accept=".csv" onChange={handleFileImport}
               className="block w-full text-xs"
-              style={{ color: 'rgba(238,240,248,0.6)' }} />
+              style={{ color: 'rgba(0,26,84,0.6)' }} />
 
             {formLoading && <p className="text-xs text-center" style={{ color: '#003087' }}>Processing...</p>}
 
             {importResult && (
-              <div className="p-4 rounded-lg text-xs space-y-1" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="p-4 rounded-lg text-xs space-y-1" style={{ background: 'rgba(0,48,135,0.04)', border: '1px solid rgba(0,48,135,0.1)' }}>
                 <p style={{ color: '#34d399' }}>✓ {importResult.success} users imported successfully</p>
                 {importResult.failed > 0 && (
                   <>
