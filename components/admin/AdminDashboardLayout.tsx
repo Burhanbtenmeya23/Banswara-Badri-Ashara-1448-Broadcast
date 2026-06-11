@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 
@@ -27,19 +28,49 @@ const navItems = [
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const [checking, setChecking] = useState(true)
+
+  useEffect(() => {
+    async function verify() {
+      try {
+        const res = await fetch('/api/admin/stats')
+        if (res.status === 401) {
+          window.location.href = '/admin/login'
+          return
+        }
+      } catch {
+        window.location.href = '/admin/login'
+        return
+      }
+      setChecking(false)
+    }
+    verify()
+  }, [])
+
+  async function handleLogout() {
+    await fetch('/api/admin/logout', { method: 'POST' })
+    window.location.href = '/admin/login'
+  }
+
+  if (checking) {
+    return (
+      <div className="bg-broadcast min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 rounded-full animate-spin"
+          style={{ borderColor: 'rgba(201,168,76,0.3)', borderTopColor: '#c9a84c' }} />
+      </div>
+    )
+  }
 
   return (
     <div className="bg-broadcast min-h-screen flex flex-col md:flex-row">
       {/* Sidebar */}
       <aside className="w-full md:w-56 shrink-0 flex flex-col"
         style={{ borderRight: '1px solid rgba(201,168,76,0.1)', background: 'rgba(13,10,3,0.7)', backdropFilter: 'blur(10px)' }}>
-        {/* Brand */}
         <div className="p-5" style={{ borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
           <p className="text-xs font-medium gold-text">Admin Panel</p>
           <p className="text-[10px] mt-0.5" style={{ color: 'rgba(245,239,224,0.3)' }}>Banswara Badri Ashara 1448</p>
         </div>
 
-        {/* Nav */}
         <nav className="flex md:flex-col flex-row gap-1 p-3 flex-1">
           {navItems.map((item) => {
             const active = pathname === item.href
@@ -57,9 +88,21 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
             )
           })}
         </nav>
+
+        <div className="p-3" style={{ borderTop: '1px solid rgba(201,168,76,0.1)' }}>
+          <button onClick={handleLogout}
+            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg text-sm transition-all"
+            style={{ color: 'rgba(245,239,224,0.4)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fca5a5' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(245,239,224,0.4)' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+            </svg>
+            <span className="hidden md:inline">Logout</span>
+          </button>
+        </div>
       </aside>
 
-      {/* Main */}
       <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
     </div>
   )
