@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { getYouTubeEmbedUrl } from '@/lib/youtube'
 
 interface BroadcastSettings {
   youtube_video_id: string | null
@@ -181,15 +182,16 @@ export default function BroadcastPlayer({
         </div>
 
         {/* 16:9 Player */}
-        <div className="relative w-full overflow-hidden rounded-none sm:rounded-xl"
-          style={{ paddingTop: '56.25%' }}>
-          <iframe
-            className="absolute inset-0 w-full h-full"
-            src={`https://www.youtube.com/embed/${settings!.youtube_video_id}?rel=0&modestbranding=1&autoplay=1`}
-            title="Banswara Badri Ashara 1448 Broadcast"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
+        <div className="relative w-full overflow-hidden rounded-2xl">
+          <div className="aspect-video">
+            <iframe
+              src={getYouTubeEmbedUrl(settings!.youtube_url ?? '')}
+              className="w-full h-full"
+              title="Broadcast Player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
         </div>
       </div>
     </div>
