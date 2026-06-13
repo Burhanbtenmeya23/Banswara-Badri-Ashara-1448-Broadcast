@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
   let query = supabaseAdmin
     .from('users')
-    .select('id, its_id, created_at, updated_at, last_login, active_session_token', { count: 'exact' })
+    .select('id, its_id, created_at, updated_at, last_login, active_session_token, audio_only', { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabaseAdmin
     .from('users')
-    .insert({ its_id: its_id.trim(), password_hash: '' })
+    .insert({ its_id: its_id.trim(), password_hash: '', audio_only: false })
     .select('id, its_id, created_at')
     .single()
 

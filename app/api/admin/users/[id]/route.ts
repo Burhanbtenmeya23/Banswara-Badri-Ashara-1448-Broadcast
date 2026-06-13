@@ -7,22 +7,26 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (guard) return guard
 
   const { id } = await params
-  const { its_id } = await req.json()
+  const body = await req.json()
 
-  const updates: Record<string, string> = { updated_at: new Date().toISOString() }
+  const updates: Record<string, string | boolean> = { updated_at: new Date().toISOString() }
 
-  if (its_id) {
-    if (!/^\d{8}$/.test(its_id.trim())) {
+  if (body.its_id) {
+    if (!/^\d{8}$/.test(body.its_id.trim())) {
       return NextResponse.json({ error: 'ITS ID must be exactly 8 digits.' }, { status: 400 })
     }
-    updates.its_id = its_id.trim()
+    updates.its_id = body.its_id.trim()
+  }
+
+  if (typeof body.audio_only === 'boolean') {
+    updates.audio_only = body.audio_only
   }
 
   const { data, error } = await supabaseAdmin
     .from('users')
     .update(updates)
     .eq('id', id)
-    .select('id, its_id, updated_at')
+    .select('id, its_id, audio_only, updated_at')
     .single()
 
   if (error) {

@@ -20,6 +20,7 @@ export default function BroadcastClient() {
   const [error, setError] = useState('')
   const [terminated, setTerminated] = useState(false)
   const [itsId, setItsId] = useState('')
+  const [audioOnly, setAudioOnly] = useState(false)
 
   const verifyAndLoad = useCallback(async () => {
     try {
@@ -35,6 +36,7 @@ export default function BroadcastClient() {
       }
       const data = await res.json()
       setSettings(data.settings)
+      setAudioOnly(data.audioOnly ?? false)
     } catch {
       setError('Connection error. Please refresh.')
     } finally {
@@ -163,7 +165,7 @@ export default function BroadcastClient() {
       </header>
 
       {/* Player */}
-      <BroadcastPlayer settings={settings} itsId={itsId} />
+      <BroadcastPlayer settings={settings} itsId={itsId} audioOnly={audioOnly} />
     </div>
   )
 }
