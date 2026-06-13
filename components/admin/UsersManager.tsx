@@ -9,6 +9,7 @@ interface User {
   created_at: string
   last_login: string | null
   active_session_token: string | null
+  audio_only: boolean
 }
 
 interface ModalProps {
@@ -125,6 +126,15 @@ export default function UsersManager() {
     }
   }
 
+  async function handleToggleAudioOnly(user: User) {
+    await fetch(`/api/admin/users/${user.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ audio_only: !user.audio_only }),
+    })
+    loadUsers()
+  }
+
   function openEdit(user: User) {
     setEditUser(user)
     setFormData({ its_id: user.its_id })
@@ -221,14 +231,15 @@ export default function UsersManager() {
                 <th className="text-left">Created</th>
                 <th className="text-left">Last Login</th>
                 <th className="text-left">Status</th>
+                <th className="text-left">Audio Only</th>
                 <th className="text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={5} className="text-center py-8" style={{ color: 'rgba(0,26,84,0.35)' }}>Loading...</td></tr>
+                <tr><td colSpan={6} className="text-center py-8" style={{ color: 'rgba(0,26,84,0.35)' }}>Loading...</td></tr>
               ) : users.length === 0 ? (
-                <tr><td colSpan={5} className="text-center py-8" style={{ color: 'rgba(0,26,84,0.35)' }}>No users found.</td></tr>
+                <tr><td colSpan={6} className="text-center py-8" style={{ color: 'rgba(0,26,84,0.35)' }}>No users found.</td></tr>
               ) : users.map((user) => (
                 <tr key={user.id}>
                   <td className="font-mono font-medium">{user.its_id}</td>
@@ -243,6 +254,17 @@ export default function UsersManager() {
                       }}>
                       {user.active_session_token ? 'Active' : 'Idle'}
                     </span>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => handleToggleAudioOnly(user)}
+                      className="text-xs px-2 py-1 rounded"
+                      style={user.audio_only
+                        ? { background: 'rgba(0,48,135,0.12)', color: '#003087', border: '1px solid rgba(0,48,135,0.25)', fontWeight: 600 }
+                        : { background: 'rgba(0,48,135,0.04)', color: 'rgba(0,26,84,0.4)', border: '1px solid rgba(0,48,135,0.1)' }
+                      }>
+                      {user.audio_only ? '🔊 Audio' : 'Video'}
+                    </button>
                   </td>
                   <td>
                     <div className="flex gap-2">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import YouTubePlayer from '@/components/YouTubePlayer'
+import AudioOnlyPlayer from '@/components/AudioOnlyPlayer'
 
 interface BroadcastSettings {
   youtube_video_id: string | null
@@ -54,10 +55,12 @@ export default function BroadcastPlayer({
   settings,
   previewState,
   itsId,
+  audioOnly,
 }: {
   settings: BroadcastSettings | null
   previewState?: BroadcastState | null
   itsId?: string
+  audioOnly?: boolean
 }) {
   const [state, setState] = useState<BroadcastState>('loading')
   const [countdown, setCountdown] = useState<Countdown>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
@@ -183,7 +186,10 @@ export default function BroadcastPlayer({
           </span>
         </div>
 
-        <YouTubePlayer url={settings!.youtube_url ?? ''} itsId={itsId} />
+        {audioOnly
+          ? <AudioOnlyPlayer url={settings!.youtube_url ?? ''} />
+          : <YouTubePlayer url={settings!.youtube_url ?? ''} itsId={itsId} />
+        }
       </div>
     </div>
   )
