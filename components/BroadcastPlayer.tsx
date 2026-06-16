@@ -64,32 +64,24 @@ export default function BroadcastPlayer({
   const [countdown, setCountdown] = useState<Countdown>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [isFullscreen, setIsFullscreen] = useState(false)
   const playerWrapRef = useRef<HTMLDivElement>(null)
+  const playerInnerRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    function onFsChange() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setIsFullscreen(!!(document.fullscreenElement || (document as any).webkitFullscreenElement))
-    }
-    document.addEventListener('fullscreenchange', onFsChange)
-    document.addEventListener('webkitfullscreenchange', onFsChange)
-    return () => {
-      document.removeEventListener('fullscreenchange', onFsChange)
-      document.removeEventListener('webkitfullscreenchange', onFsChange)
-    }
-  }, [])
-
+  // Custom fullscreen: CSS-driven so sizing is fully under our control.
+  // Browser fullscreen API loses control of the inner aspect-ratio div on mobile.
   function toggleFullscreen() {
-    const el = playerWrapRef.current
-    if (!el) return
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const doc = document as any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const elem = el as any
-    const isFs = doc.fullscreenElement || doc.webkitFullscreenElement
-    if (isFs) {
-      ;(doc.exitFullscreen || doc.webkitExitFullscreen)?.call(doc)
+    if (!isFullscreen) {
+      setIsFullscreen(true)
+      // Lock landscape on Android (Screen Orientation API)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(screen.orientation as any)?.lock?.('landscape').catch?.(() => {})
+      } catch {}
     } else {
-      ;(elem.requestFullscreen || elem.webkitRequestFullscreen)?.call(elem)
+      setIsFullscreen(false)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(screen.orientation as any)?.unlock?.()
+      } catch {}
     }
   }
 
@@ -214,6 +206,33 @@ export default function BroadcastPlayer({
           </span>
         </div>
 
+        {/* Fullscreen overlay — CSS-driven so we control sizing on all platforms */}
+        {isFullscreen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+            onClick={e => { if (e.target === e.currentTarget) toggleFullscreen() }}
+          >
+            {/* min(100vw, 177.78vh) fills screen height in landscape without overflow */}
+            <div ref={playerInnerRef} style={{ width: 'min(100vw, 177.78vh)', position: 'relative' }}>
+              {audioOnly
+                ? <AudioOnlyPlayer url={settings!.youtube_url ?? ''} />
+                : <YouTubePlayer url={settings!.youtube_url ?? ''} />
+              }
+            </div>
+            {/* Exit button in fullscreen */}
+            <button
+              onClick={toggleFullscreen}
+              className="absolute top-4 right-4 flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg"
+              style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', zIndex: 60 }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/>
+              </svg>
+              Exit
+            </button>
+          </div>
+        )}
+
         <div ref={playerWrapRef}>
           {audioOnly
             ? <AudioOnlyPlayer url={settings!.youtube_url ?? ''} />
@@ -221,12 +240,12 @@ export default function BroadcastPlayer({
           }
         </div>
 
-        {/* Controls row */}
-        <div className="flex items-center justify-center gap-2 mt-4 mb-2">
+        {/* Controls row — mt-8 keeps clear of video edge on iOS */}
+        <div className="flex items-center justify-center gap-3 mt-8 mb-4">
           <button
             onClick={() => window.location.reload()}
-            className="flex items-center gap-1.5 text-xs px-4 py-2 rounded-lg transition-all"
-            style={{ background: 'rgba(0,48,135,0.06)', border: '1px solid rgba(0,48,135,0.12)', color: 'rgba(0,26,84,0.45)' }}
+            className="flex items-center gap-2 text-xs px-5 py-3 rounded-xl transition-all"
+            style={{ background: 'rgba(0,48,135,0.06)', border: '1px solid rgba(0,48,135,0.12)', color: 'rgba(0,26,84,0.5)', minWidth: 120 }}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="23 4 23 10 17 10"/>
@@ -237,24 +256,13 @@ export default function BroadcastPlayer({
 
           <button
             onClick={toggleFullscreen}
-            className="flex items-center gap-1.5 text-xs px-4 py-2 rounded-lg transition-all"
-            style={{ background: 'rgba(0,48,135,0.06)', border: '1px solid rgba(0,48,135,0.12)', color: 'rgba(0,26,84,0.45)' }}
+            className="flex items-center gap-2 text-xs px-5 py-3 rounded-xl transition-all"
+            style={{ background: 'rgba(0,48,135,0.06)', border: '1px solid rgba(0,48,135,0.12)', color: 'rgba(0,26,84,0.5)', minWidth: 120 }}
           >
-            {isFullscreen ? (
-              <>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/>
-                </svg>
-                Exit fullscreen
-              </>
-            ) : (
-              <>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
-                </svg>
-                Full screen
-              </>
-            )}
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+            </svg>
+            Full screen
           </button>
         </div>
       </div>

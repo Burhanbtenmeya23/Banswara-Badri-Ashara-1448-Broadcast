@@ -6,9 +6,14 @@ export default function LoginForm() {
   const [itsId, setItsId] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    if (itsId.trim().length !== 8) {
+      setError('ITS ID must be exactly 8 digits.')
+      return
+    }
     setError('')
     setLoading(true)
 
@@ -16,19 +21,28 @@ export default function LoginForm() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ its_id: itsId.trim() }),
       })
 
-      const data = await res.json()
+      let data: { error?: string } = {}
+      try { data = await res.json() } catch {}
 
       if (!res.ok) {
         setError(data.error ?? 'Login failed. Please try again.')
         return
       }
 
-      window.location.href = '/broadcast'
+      // Show success state before navigating — TV browsers may be slow to navigate
+      setSuccess(true)
+      // Try multiple navigation methods for broad browser compatibility
+      setTimeout(() => {
+        try { window.location.replace('/broadcast') } catch {
+          try { window.location.href = '/broadcast' } catch {}
+        }
+      }, 300)
     } catch {
-      setError('Network error. Please check your connection.')
+      setError('Network error. Please check your connection and try again.')
     } finally {
       setLoading(false)
     }
@@ -44,7 +58,8 @@ export default function LoginForm() {
           style={{ background: 'radial-gradient(circle, #003087 0%, transparent 70%)' }} />
       </div>
 
-      <div className="relative w-full max-w-sm">
+      {/* max-w-sm keeps card compact on wide/TV screens */}
+      <div className="relative w-full" style={{ maxWidth: 400 }}>
         {/* Logo / Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-5">
@@ -74,6 +89,13 @@ export default function LoginForm() {
             Enter your ITS ID to access the broadcast
           </h2>
 
+          {success && (
+            <div className="mb-4 px-4 py-3 rounded-lg text-sm text-center"
+              style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.25)', color: '#059669' }}>
+              Login successful. Loading broadcast…
+            </div>
+          )}
+
           {error && (
             <div className="mb-4 px-4 py-3 rounded-lg text-sm text-center"
               style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#dc2626' }}>
@@ -88,20 +110,16 @@ export default function LoginForm() {
               </label>
               <input
                 type="text"
-                inputMode="numeric"
-                pattern="\d{8}"
                 maxLength={8}
                 className="glass-input"
                 placeholder="Enter your 8-digit ITS ID"
                 value={itsId}
                 onChange={(e) => setItsId(e.target.value.replace(/\D/g, '').slice(0, 8))}
-                required
-                autoFocus
                 autoComplete="username"
               />
             </div>
 
-            <button type="submit" className="btn-gold mt-2" disabled={loading}>
+            <button type="submit" className="btn-gold mt-2" disabled={loading || success}>
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
