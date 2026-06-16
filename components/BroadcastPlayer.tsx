@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import YouTubePlayer from '@/components/YouTubePlayer'
 import AudioOnlyPlayer from '@/components/AudioOnlyPlayer'
 
@@ -62,6 +62,36 @@ export default function BroadcastPlayer({
 }) {
   const [state, setState] = useState<BroadcastState>('loading')
   const [countdown, setCountdown] = useState<Countdown>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const playerWrapRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function onFsChange() {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setIsFullscreen(!!(document.fullscreenElement || (document as any).webkitFullscreenElement))
+    }
+    document.addEventListener('fullscreenchange', onFsChange)
+    document.addEventListener('webkitfullscreenchange', onFsChange)
+    return () => {
+      document.removeEventListener('fullscreenchange', onFsChange)
+      document.removeEventListener('webkitfullscreenchange', onFsChange)
+    }
+  }, [])
+
+  function toggleFullscreen() {
+    const el = playerWrapRef.current
+    if (!el) return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const doc = document as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const elem = el as any
+    const isFs = doc.fullscreenElement || doc.webkitFullscreenElement
+    if (isFs) {
+      ;(doc.exitFullscreen || doc.webkitExitFullscreen)?.call(doc)
+    } else {
+      ;(elem.requestFullscreen || elem.webkitRequestFullscreen)?.call(elem)
+    }
+  }
 
   useEffect(() => {
     function update() {
@@ -184,16 +214,18 @@ export default function BroadcastPlayer({
           </span>
         </div>
 
-        {audioOnly
-          ? <AudioOnlyPlayer url={settings!.youtube_url ?? ''} />
-          : <YouTubePlayer url={settings!.youtube_url ?? ''} />
-        }
+        <div ref={playerWrapRef}>
+          {audioOnly
+            ? <AudioOnlyPlayer url={settings!.youtube_url ?? ''} />
+            : <YouTubePlayer url={settings!.youtube_url ?? ''} />
+          }
+        </div>
 
-        {/* Refresh button */}
-        <div className="flex justify-center mt-4 mb-2">
+        {/* Controls row */}
+        <div className="flex items-center justify-center gap-2 mt-4 mb-2">
           <button
             onClick={() => window.location.reload()}
-            className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg transition-all"
+            className="flex items-center gap-1.5 text-xs px-4 py-2 rounded-lg transition-all"
             style={{ background: 'rgba(0,48,135,0.06)', border: '1px solid rgba(0,48,135,0.12)', color: 'rgba(0,26,84,0.45)' }}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -201,6 +233,28 @@ export default function BroadcastPlayer({
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
             </svg>
             Refresh stream
+          </button>
+
+          <button
+            onClick={toggleFullscreen}
+            className="flex items-center gap-1.5 text-xs px-4 py-2 rounded-lg transition-all"
+            style={{ background: 'rgba(0,48,135,0.06)', border: '1px solid rgba(0,48,135,0.12)', color: 'rgba(0,26,84,0.45)' }}
+          >
+            {isFullscreen ? (
+              <>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/>
+                </svg>
+                Exit fullscreen
+              </>
+            ) : (
+              <>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+                </svg>
+                Full screen
+              </>
+            )}
           </button>
         </div>
       </div>
