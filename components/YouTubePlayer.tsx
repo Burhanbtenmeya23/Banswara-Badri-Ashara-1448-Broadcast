@@ -46,6 +46,11 @@ const POSITIONS: React.CSSProperties[] = [
   { bottom: '50px', right: '10px' },
 ]
 
+function isIOSSafari(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+}
+
 interface Props {
   url: string
   itsId?: string
@@ -59,7 +64,9 @@ export default function YouTubePlayer({ url, itsId }: Props) {
   const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [apiReady, setApiReady] = useState(false)
   const [playerReady, setPlayerReady] = useState(false)
-  const [needsTap, setNeedsTap] = useState(false)
+  // iOS Safari blocks autoplay without a user gesture — start true on iOS, false elsewhere
+  const [needsTap, setNeedsTap] = useState(() => isIOSSafari())
+  const [playerError, setPlayerError] = useState(false)
   const [posIdx, setPosIdx] = useState(0)
   const [showWelcomeBack, setShowWelcomeBack] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -69,6 +76,7 @@ export default function YouTubePlayer({ url, itsId }: Props) {
   const initPlayer = useCallback(() => {
     if (!window.YT?.Player || !videoId) return
     playerRef.current?.destroy()
+    setPlayerError(false)
     playerRef.current = new window.YT.Player(divId, {
       videoId,
       host: 'https://www.youtube-nocookie.com',
@@ -79,22 +87,19 @@ export default function YouTubePlayer({ url, itsId }: Props) {
         rel: 0,
         modestbranding: 1,
         playsinline: 1,
-        fs: 0,            // we provide our own fullscreen
-        iv_load_policy: 3, // hide annotations
+        fs: 0,
+        iv_load_policy: 3,
         cc_load_policy: 0,
         origin: typeof window !== 'undefined' ? window.location.origin : '',
       },
       events: {
         onReady(e) {
           setPlayerReady(true)
-          const p = e.target.playVideo()
-          // iOS returns undefined and ignores autoplay without gesture
-          if (p === undefined && e.target.getPlayerState() !== 1) {
-            setNeedsTap(true)
-          }
+          e.target.playVideo()
         },
         onStateChange(e) {
           if (e.data === window.YT.PlayerState.PLAYING) {
+            // Autoplay succeeded — clear the tap-to-play gate
             setNeedsTap(false)
           }
           // Auto-resume if paused — enforces viewer-only mode
@@ -104,6 +109,9 @@ export default function YouTubePlayer({ url, itsId }: Props) {
               playerRef.current?.playVideo()
             }, 250)
           }
+        },
+        onError() {
+          setPlayerError(true)
         },
       },
     })
@@ -122,15 +130,10 @@ export default function YouTubePlayer({ url, itsId }: Props) {
 
   // Watermark position rotation (30–60 s)
   useEffect(() => {
-    function rotate() {
-      setPosIdx(p => (p + 1) % POSITIONS.length)
-    }
-    const ms = 30000 + Math.random() * 30000
     const t = setTimeout(function tick() {
-      rotate()
-      const next = 30000 + Math.random() * 30000
-      setTimeout(tick, next)
-    }, ms)
+      setPosIdx(p => (p + 1) % POSITIONS.length)
+      setTimeout(tick, 30000 + Math.random() * 30000)
+    }, 30000 + Math.random() * 30000)
     return () => clearTimeout(t)
   }, [])
 
@@ -141,16 +144,17 @@ export default function YouTubePlayer({ url, itsId }: Props) {
       setShowWelcomeBack(true)
       clearTimeout(hideTimer)
       hideTimer = setTimeout(() => setShowWelcomeBack(false), 4000)
-      // Ensure stream resumes
       playerRef.current?.playVideo()
     }
-    document.addEventListener('visibilitychange', () => {
+    // Store the exact handler reference so removeEventListener works
+    function onVisibility() {
       if (document.visibilityState === 'visible') onReturn()
-    })
+    }
+    document.addEventListener('visibilitychange', onVisibility)
     window.addEventListener('focus', onReturn)
     return () => {
       clearTimeout(hideTimer)
-      document.removeEventListener('visibilitychange', onReturn)
+      document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('focus', onReturn)
     }
   }, [])
@@ -196,9 +200,13 @@ export default function YouTubePlayer({ url, itsId }: Props) {
     }
   }
 
-  // Prevent context menu and selection on the container
   function blockContext(e: React.MouseEvent) {
     e.preventDefault()
+  }
+
+  function handleTap() {
+    playerRef.current?.playVideo()
+    setNeedsTap(false)
   }
 
   const wPos = POSITIONS[posIdx]
@@ -233,16 +241,17 @@ export default function YouTubePlayer({ url, itsId }: Props) {
           <div id={divId} className="w-full h-full" />
         </div>
 
-        {/* Interaction blocker — blocks mouse drags/right-click; pointer-events-none on touch so iOS tap reaches iframe */}
-        <div
-          className="absolute inset-0 z-10 touch-none"
-          style={{ pointerEvents: needsTap ? 'none' : undefined }}
-          onContextMenu={blockContext}
-          onDragStart={e => e.preventDefault()}
-        />
+        {/* Interaction blocker — blocks mouse right-click/drag; removed when tap needed so iOS can interact */}
+        {!needsTap && (
+          <div
+            className="absolute inset-0 z-10 touch-none"
+            onContextMenu={blockContext}
+            onDragStart={e => e.preventDefault()}
+          />
+        )}
 
         {/* Watermark */}
-        {itsId && (
+        {itsId && !needsTap && (
           <div
             className="absolute z-20 pointer-events-none transition-all duration-[1200ms] ease-in-out"
             style={{
@@ -262,32 +271,34 @@ export default function YouTubePlayer({ url, itsId }: Props) {
           </div>
         )}
 
-        {/* Fullscreen button */}
-        <button
-          onClick={toggleFullscreen}
-          className="absolute z-20 transition-opacity duration-200 opacity-0 hover:opacity-100 focus:opacity-100"
-          style={{
-            bottom: '10px', right: '10px',
-            background: 'rgba(0,0,0,0.65)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            borderRadius: '6px',
-            padding: '7px',
-            cursor: 'pointer',
-            color: 'white',
-          }}
-          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-          aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-        >
-          {isFullscreen ? (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/>
-            </svg>
-          ) : (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
-            </svg>
-          )}
-        </button>
+        {/* Fullscreen button — always visible on touch devices, hover-only on desktop */}
+        {!needsTap && playerReady && !playerError && (
+          <button
+            onClick={toggleFullscreen}
+            className="absolute z-20 transition-opacity duration-200 opacity-100 sm:opacity-0 sm:hover:opacity-100 sm:focus:opacity-100"
+            style={{
+              bottom: '10px', right: '10px',
+              background: 'rgba(0,0,0,0.65)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '6px',
+              padding: '7px',
+              cursor: 'pointer',
+              color: 'white',
+            }}
+            title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          >
+            {isFullscreen ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/>
+              </svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+              </svg>
+            )}
+          </button>
+        )}
 
         {/* Welcome back toast */}
         <div
@@ -304,12 +315,12 @@ export default function YouTubePlayer({ url, itsId }: Props) {
           Welcome back to the broadcast.
         </div>
 
-        {/* iOS tap-to-play overlay */}
-        {needsTap && playerReady && (
+        {/* iOS / no-autoplay: tap to start */}
+        {needsTap && playerReady && !playerError && (
           <div
             className="absolute inset-0 z-40 flex flex-col items-center justify-center cursor-pointer"
-            style={{ background: 'rgba(0,16,64,0.85)' }}
-            onClick={() => { playerRef.current?.playVideo(); setNeedsTap(false) }}
+            style={{ background: 'rgba(0,16,64,0.88)' }}
+            onClick={handleTap}
           >
             <div className="w-16 h-16 rounded-full flex items-center justify-center mb-3"
               style={{ background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.3)' }}>
@@ -318,11 +329,38 @@ export default function YouTubePlayer({ url, itsId }: Props) {
               </svg>
             </div>
             <p className="text-white text-sm font-medium">Tap to watch</p>
+            <p className="text-white text-xs mt-1" style={{ opacity: 0.5 }}>Live broadcast</p>
+          </div>
+        )}
+
+        {/* Playback error */}
+        {playerError && (
+          <div
+            className="absolute inset-0 z-40 flex flex-col items-center justify-center"
+            style={{ background: 'rgba(0,16,64,0.92)' }}
+          >
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
+              style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <p className="text-white text-sm font-medium mb-1">Stream unavailable</p>
+            <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.4)' }}>Please refresh or contact the administrator.</p>
+            <button
+              onClick={() => initPlayer()}
+              className="text-xs px-4 py-2 rounded-lg"
+              style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'white' }}
+            >
+              Retry
+            </button>
           </div>
         )}
 
         {/* Loading overlay */}
-        {!playerReady && (
+        {!playerReady && !playerError && (
           <div
             className="absolute inset-0 z-40 flex items-center justify-center"
             style={{ background: 'rgba(0,16,64,0.92)' }}

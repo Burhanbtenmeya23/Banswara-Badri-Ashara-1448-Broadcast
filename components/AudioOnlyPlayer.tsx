@@ -1,9 +1,13 @@
 'use client'
 
-import { useEffect, useRef, useCallback, useId } from 'react'
+import { useEffect, useRef, useCallback, useId, useState } from 'react'
 import Script from 'next/script'
 import { extractYouTubeVideoId } from '@/lib/youtube'
 
+function isIOS(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+}
 
 interface Props {
   url: string
@@ -15,6 +19,9 @@ export default function AudioOnlyPlayer({ url }: Props) {
   const playerRef = useRef<YTPlayer | null>(null)
   const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const videoId = extractYouTubeVideoId(url) ?? ''
+  // iOS Safari blocks autoplay without a user gesture
+  const [needsTap, setNeedsTap] = useState(() => isIOS())
+  const [playerReady, setPlayerReady] = useState(false)
 
   const initPlayer = useCallback(() => {
     if (!window.YT?.Player || !videoId) return
@@ -34,8 +41,14 @@ export default function AudioOnlyPlayer({ url }: Props) {
         origin: typeof window !== 'undefined' ? window.location.origin : '',
       },
       events: {
-        onReady(e) { e.target.playVideo() },
+        onReady(e) {
+          setPlayerReady(true)
+          e.target.playVideo()
+        },
         onStateChange(e) {
+          if (e.data === window.YT.PlayerState.PLAYING) {
+            setNeedsTap(false)
+          }
           if (e.data === window.YT.PlayerState.PAUSED) {
             if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current)
             resumeTimerRef.current = setTimeout(() => playerRef.current?.playVideo(), 250)
@@ -58,18 +71,24 @@ export default function AudioOnlyPlayer({ url }: Props) {
     }
   }, [initPlayer])
 
-  // Resume on tab return
+  // Resume on tab return — store named handler so removeEventListener works
   useEffect(() => {
     function onReturn() { playerRef.current?.playVideo() }
-    document.addEventListener('visibilitychange', () => {
+    function onVisibility() {
       if (document.visibilityState === 'visible') onReturn()
-    })
+    }
+    document.addEventListener('visibilitychange', onVisibility)
     window.addEventListener('focus', onReturn)
     return () => {
-      document.removeEventListener('visibilitychange', onReturn)
+      document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('focus', onReturn)
     }
   }, [])
+
+  function handleTap() {
+    playerRef.current?.playVideo()
+    setNeedsTap(false)
+  }
 
   return (
     <>
@@ -83,7 +102,7 @@ export default function AudioOnlyPlayer({ url }: Props) {
       {/* Audio-only UI */}
       <div className="flex flex-col items-center justify-center flex-1 px-4 py-12">
         <div className="glass-card p-10 text-center max-w-sm w-full">
-          {/* Animated waveform */}
+          {/* Animated waveform — paused when waiting for tap */}
           <div className="flex items-end justify-center gap-1 mb-6" style={{ height: 48 }}>
             {[0.4, 0.7, 1, 0.85, 0.6, 0.9, 0.5, 0.75, 0.95, 0.65, 0.45, 0.8].map((h, i) => (
               <div
@@ -94,7 +113,7 @@ export default function AudioOnlyPlayer({ url }: Props) {
                   height: `${h * 100}%`,
                   background: '#003087',
                   opacity: 0.7,
-                  animation: `audioBar 1.2s ease-in-out ${(i * 0.1).toFixed(1)}s infinite alternate`,
+                  animation: needsTap ? 'none' : `audioBar 1.2s ease-in-out ${(i * 0.1).toFixed(1)}s infinite alternate`,
                 }}
               />
             ))}
@@ -116,11 +135,24 @@ export default function AudioOnlyPlayer({ url }: Props) {
             Video is not available for your account.
           </p>
 
-          {/* Live indicator */}
-          <div className="flex items-center justify-center gap-1.5 mt-5">
-            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#ef4444' }} />
-            <span className="text-xs font-medium" style={{ color: '#dc2626' }}>LIVE</span>
-          </div>
+          {/* iOS tap-to-listen */}
+          {needsTap && playerReady && (
+            <button
+              onClick={handleTap}
+              className="mt-5 px-5 py-2.5 rounded-lg text-sm font-medium w-full"
+              style={{ background: '#003087', color: 'white' }}
+            >
+              Tap to listen
+            </button>
+          )}
+
+          {/* Live indicator — only when playing */}
+          {!needsTap && (
+            <div className="flex items-center justify-center gap-1.5 mt-5">
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#ef4444' }} />
+              <span className="text-xs font-medium" style={{ color: '#dc2626' }}>LIVE</span>
+            </div>
+          )}
         </div>
       </div>
 
