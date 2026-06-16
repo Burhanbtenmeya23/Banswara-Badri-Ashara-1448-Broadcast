@@ -64,7 +64,6 @@ export default function BroadcastPlayer({
   const [countdown, setCountdown] = useState<Countdown>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [isFullscreen, setIsFullscreen] = useState(false)
   const playerWrapRef = useRef<HTMLDivElement>(null)
-  const playerInnerRef = useRef<HTMLDivElement>(null)
 
   // Custom fullscreen: CSS-driven so sizing is fully under our control.
   // Browser fullscreen API loses control of the inner aspect-ratio div on mobile.
@@ -206,20 +205,28 @@ export default function BroadcastPlayer({
           </span>
         </div>
 
-        {/* Fullscreen overlay — CSS-driven so we control sizing on all platforms */}
-        {isFullscreen && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black"
-            onClick={e => { if (e.target === e.currentTarget) toggleFullscreen() }}
-          >
-            {/* min(100vw, 177.78vh) fills screen height in landscape without overflow */}
-            <div ref={playerInnerRef} style={{ width: 'min(100vw, 177.78vh)', position: 'relative' }}>
-              {audioOnly
-                ? <AudioOnlyPlayer url={settings!.youtube_url ?? ''} />
-                : <YouTubePlayer url={settings!.youtube_url ?? ''} />
-              }
-            </div>
-            {/* Exit button in fullscreen */}
+        {/* Single player instance — fullscreen applied via CSS on the wrapper */}
+        <div
+          ref={playerWrapRef}
+          style={isFullscreen ? {
+            position: 'fixed',
+            inset: 0,
+            zIndex: 50,
+            background: '#000',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          } : {}}
+        >
+          <div style={isFullscreen ? { width: 'min(100vw, 177.78vh)', position: 'relative' } : { width: '100%' }}>
+            {audioOnly
+              ? <AudioOnlyPlayer url={settings!.youtube_url ?? ''} />
+              : <YouTubePlayer url={settings!.youtube_url ?? ''} />
+            }
+          </div>
+
+          {/* Exit button — only shown inside fullscreen */}
+          {isFullscreen && (
             <button
               onClick={toggleFullscreen}
               className="absolute top-4 right-4 flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg"
@@ -230,14 +237,7 @@ export default function BroadcastPlayer({
               </svg>
               Exit
             </button>
-          </div>
-        )}
-
-        <div ref={playerWrapRef}>
-          {audioOnly
-            ? <AudioOnlyPlayer url={settings!.youtube_url ?? ''} />
-            : <YouTubePlayer url={settings!.youtube_url ?? ''} />
-          }
+          )}
         </div>
 
         {/* Controls row — mt-8 keeps clear of video edge on iOS */}
