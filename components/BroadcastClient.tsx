@@ -165,7 +165,7 @@ export default function BroadcastClient() {
       </header>
 
       {/* Player */}
-      <BroadcastPlayer settings={settings} itsId={itsId} audioOnly={audioOnly} />
+      <BroadcastPlayer settings={settings} audioOnly={audioOnly} />
     </div>
   )
 }

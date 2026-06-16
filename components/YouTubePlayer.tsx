@@ -39,13 +39,6 @@ const BLOCKED_KEYS = new Set([
   'Home', 'End',
 ])
 
-const POSITIONS: React.CSSProperties[] = [
-  { top: '10px', left: '10px' },
-  { top: '10px', right: '10px' },
-  { bottom: '50px', left: '10px' },
-  { bottom: '50px', right: '10px' },
-]
-
 function isIOS(): boolean {
   if (typeof navigator === 'undefined') return false
   return /iPad|iPhone|iPod/.test(navigator.userAgent)
@@ -53,7 +46,6 @@ function isIOS(): boolean {
 
 interface Props {
   url: string
-  itsId?: string
 }
 
 // ─── iOS player ─────────────────────────────────────────────────────────────
@@ -61,20 +53,11 @@ interface Props {
 // as a user gesture, so autoplay is always blocked regardless of our tap overlay.
 // Direct iframe embed lets iOS show its native play button which DOES count as
 // a gesture — the video plays inline without hijacking to fullscreen.
-function IOSPlayer({ videoId, itsId }: { videoId: string; itsId?: string }) {
-  const containerRef = useRef<HTMLDivElement>(null)
+function IOSPlayer({ videoId }: { videoId: string }) {
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [posIdx, setPosIdx] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1&controls=1&rel=0&iv_load_policy=3&cc_load_policy=0&modestbranding=1&fs=0`
-
-  useEffect(() => {
-    const t = setTimeout(function tick() {
-      setPosIdx(p => (p + 1) % POSITIONS.length)
-      setTimeout(tick, 30000 + Math.random() * 30000)
-    }, 30000 + Math.random() * 30000)
-    return () => clearTimeout(t)
-  }, [])
 
   useEffect(() => {
     function onChange() {
@@ -104,11 +87,8 @@ function IOSPlayer({ videoId, itsId }: { videoId: string; itsId?: string }) {
     }
   }
 
-  const wPos = POSITIONS[posIdx]
-
   return (
-    <div ref={containerRef} className="relative w-full overflow-hidden rounded-2xl"
-      style={{ WebkitUserSelect: 'none' } as React.CSSProperties}>
+    <div ref={containerRef} className="relative w-full overflow-hidden rounded-2xl">
       <div className="bg-black" style={{ position: 'relative', paddingTop: '56.25%' }}>
         <iframe
           src={src}
@@ -117,25 +97,6 @@ function IOSPlayer({ videoId, itsId }: { videoId: string; itsId?: string }) {
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
         />
       </div>
-
-      {/* Watermark */}
-      {itsId && (
-        <div className="absolute z-20 pointer-events-none transition-all duration-[1200ms] ease-in-out"
-          style={{
-            ...wPos,
-            background: 'rgba(0,0,0,0.4)',
-            backdropFilter: 'blur(3px)',
-            padding: '3px 8px',
-            borderRadius: '4px',
-            fontSize: '10px',
-            color: 'rgba(255,255,255,0.5)',
-            fontFamily: 'monospace',
-            letterSpacing: '0.06em',
-            userSelect: 'none',
-          }}>
-          ITS: {itsId}
-        </div>
-      )}
 
       {/* Fullscreen button */}
       <button
@@ -165,7 +126,7 @@ function IOSPlayer({ videoId, itsId }: { videoId: string; itsId?: string }) {
 }
 
 // ─── Full API player (desktop / Android) ────────────────────────────────────
-function APIPlayer({ videoId, itsId }: { videoId: string; itsId?: string }) {
+function APIPlayer({ videoId }: { videoId: string }) {
   const uid = useId().replace(/:/g, '')
   const divId = `yt-${uid}`
   const containerRef = useRef<HTMLDivElement>(null)
@@ -174,7 +135,6 @@ function APIPlayer({ videoId, itsId }: { videoId: string; itsId?: string }) {
   const [apiReady, setApiReady] = useState(false)
   const [playerReady, setPlayerReady] = useState(false)
   const [playerError, setPlayerError] = useState(false)
-  const [posIdx, setPosIdx] = useState(0)
   const [showWelcomeBack, setShowWelcomeBack] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
 
@@ -225,14 +185,6 @@ function APIPlayer({ videoId, itsId }: { videoId: string; itsId?: string }) {
   }, [apiReady, initPlayer])
 
   useEffect(() => () => { playerRef.current?.destroy() }, [])
-
-  useEffect(() => {
-    const t = setTimeout(function tick() {
-      setPosIdx(p => (p + 1) % POSITIONS.length)
-      setTimeout(tick, 30000 + Math.random() * 30000)
-    }, 30000 + Math.random() * 30000)
-    return () => clearTimeout(t)
-  }, [])
 
   useEffect(() => {
     let hideTimer: ReturnType<typeof setTimeout>
@@ -295,8 +247,6 @@ function APIPlayer({ videoId, itsId }: { videoId: string; itsId?: string }) {
 
   function blockContext(e: React.MouseEvent) { e.preventDefault() }
 
-  const wPos = POSITIONS[posIdx]
-
   return (
     <>
       <style>{`#${divId}, #${divId} iframe { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; }`}</style>
@@ -327,25 +277,6 @@ function APIPlayer({ videoId, itsId }: { videoId: string; itsId?: string }) {
 
         {/* Interaction blocker */}
         <div className="absolute inset-0 z-10 touch-none" onContextMenu={blockContext} onDragStart={e => e.preventDefault()} />
-
-        {/* Watermark */}
-        {itsId && (
-          <div className="absolute z-20 pointer-events-none transition-all duration-[1200ms] ease-in-out"
-            style={{
-              ...wPos,
-              background: 'rgba(0,0,0,0.4)',
-              backdropFilter: 'blur(3px)',
-              padding: '3px 8px',
-              borderRadius: '4px',
-              fontSize: '10px',
-              color: 'rgba(255,255,255,0.5)',
-              fontFamily: 'monospace',
-              letterSpacing: '0.06em',
-              userSelect: 'none',
-            }}>
-            ITS: {itsId}
-          </div>
-        )}
 
         {/* Fullscreen button */}
         {playerReady && !playerError && (
@@ -422,10 +353,16 @@ function APIPlayer({ videoId, itsId }: { videoId: string; itsId?: string }) {
   )
 }
 
-// ─── Public export — picks the right player at runtime ───────────────────────
-export default function YouTubePlayer({ url, itsId }: Props) {
+// ─── Public export ────────────────────────────────────────────────────────────
+// iOS detection must happen in useEffect to avoid SSR/client hydration mismatch.
+// Server always renders APIPlayer; on iOS the swap happens before the YT script
+// loads so there is no visible flash.
+export default function YouTubePlayer({ url }: Props) {
+  const [ios, setIos] = useState(false)
+  useEffect(() => { setIos(isIOS()) }, [])
+
   const videoId = extractYouTubeVideoId(url) ?? ''
   if (!videoId) return null
-  if (isIOS()) return <IOSPlayer videoId={videoId} itsId={itsId} />
-  return <APIPlayer videoId={videoId} itsId={itsId} />
+  if (ios) return <IOSPlayer videoId={videoId} />
+  return <APIPlayer videoId={videoId} />
 }

@@ -54,12 +54,10 @@ function formatDateTime(iso: string): string {
 export default function BroadcastPlayer({
   settings,
   previewState,
-  itsId,
   audioOnly,
 }: {
   settings: BroadcastSettings | null
   previewState?: BroadcastState | null
-  itsId?: string
   audioOnly?: boolean
 }) {
   const [state, setState] = useState<BroadcastState>('loading')
@@ -188,8 +186,23 @@ export default function BroadcastPlayer({
 
         {audioOnly
           ? <AudioOnlyPlayer url={settings!.youtube_url ?? ''} />
-          : <YouTubePlayer url={settings!.youtube_url ?? ''} itsId={itsId} />
+          : <YouTubePlayer url={settings!.youtube_url ?? ''} />
         }
+
+        {/* Refresh button */}
+        <div className="flex justify-center mt-4 mb-2">
+          <button
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg transition-all"
+            style={{ background: 'rgba(0,48,135,0.06)', border: '1px solid rgba(0,48,135,0.12)', color: 'rgba(0,26,84,0.45)' }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Refresh stream
+          </button>
+        </div>
       </div>
     </div>
   )
