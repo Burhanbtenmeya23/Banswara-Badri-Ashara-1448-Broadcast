@@ -59,6 +59,7 @@ export default function YouTubePlayer({ url, itsId }: Props) {
   const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [apiReady, setApiReady] = useState(false)
   const [playerReady, setPlayerReady] = useState(false)
+  const [needsTap, setNeedsTap] = useState(false)
   const [posIdx, setPosIdx] = useState(0)
   const [showWelcomeBack, setShowWelcomeBack] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -86,9 +87,16 @@ export default function YouTubePlayer({ url, itsId }: Props) {
       events: {
         onReady(e) {
           setPlayerReady(true)
-          e.target.playVideo()
+          const p = e.target.playVideo()
+          // iOS returns undefined and ignores autoplay without gesture
+          if (p === undefined && e.target.getPlayerState() !== 1) {
+            setNeedsTap(true)
+          }
         },
         onStateChange(e) {
+          if (e.data === window.YT.PlayerState.PLAYING) {
+            setNeedsTap(false)
+          }
           // Auto-resume if paused — enforces viewer-only mode
           if (e.data === window.YT.PlayerState.PAUSED) {
             if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current)
@@ -159,22 +167,32 @@ export default function YouTubePlayer({ url, itsId }: Props) {
     return () => document.removeEventListener('keydown', onKey, true)
   }, [])
 
-  // Track fullscreen state for button icon swap
+  // Track fullscreen state for button icon swap (webkit for iOS)
   useEffect(() => {
     function onChange() {
-      setIsFullscreen(!!document.fullscreenElement)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setIsFullscreen(!!(document.fullscreenElement || (document as any).webkitFullscreenElement))
     }
     document.addEventListener('fullscreenchange', onChange)
-    return () => document.removeEventListener('fullscreenchange', onChange)
+    document.addEventListener('webkitfullscreenchange', onChange)
+    return () => {
+      document.removeEventListener('fullscreenchange', onChange)
+      document.removeEventListener('webkitfullscreenchange', onChange)
+    }
   }, [])
 
   function toggleFullscreen() {
     const el = containerRef.current
     if (!el) return
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => null)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const doc = document as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const elem = el as any
+    const isFs = doc.fullscreenElement || doc.webkitFullscreenElement
+    if (isFs) {
+      ;(doc.exitFullscreen || doc.webkitExitFullscreen)?.call(doc)
     } else {
-      el.requestFullscreen().catch(() => null)
+      ;(elem.requestFullscreen || elem.webkitRequestFullscreen)?.call(elem)
     }
   }
 
@@ -215,9 +233,10 @@ export default function YouTubePlayer({ url, itsId }: Props) {
           <div id={divId} className="w-full h-full" />
         </div>
 
-        {/* Interaction blocker — sits above iframe, below controls */}
+        {/* Interaction blocker — blocks mouse drags/right-click; pointer-events-none on touch so iOS tap reaches iframe */}
         <div
-          className="absolute inset-0 z-10"
+          className="absolute inset-0 z-10 touch-none"
+          style={{ pointerEvents: needsTap ? 'none' : undefined }}
           onContextMenu={blockContext}
           onDragStart={e => e.preventDefault()}
         />
@@ -284,6 +303,23 @@ export default function YouTubePlayer({ url, itsId }: Props) {
         >
           Welcome back to the broadcast.
         </div>
+
+        {/* iOS tap-to-play overlay */}
+        {needsTap && playerReady && (
+          <div
+            className="absolute inset-0 z-40 flex flex-col items-center justify-center cursor-pointer"
+            style={{ background: 'rgba(0,16,64,0.85)' }}
+            onClick={() => { playerRef.current?.playVideo(); setNeedsTap(false) }}
+          >
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-3"
+              style={{ background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.3)' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </div>
+            <p className="text-white text-sm font-medium">Tap to watch</p>
+          </div>
+        )}
 
         {/* Loading overlay */}
         {!playerReady && (
