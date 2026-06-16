@@ -229,6 +229,9 @@ export default function YouTubePlayer({ url, itsId }: Props) {
         }}
       />
 
+      {/* Force the YT-generated iframe to fill its container — YouTube sets inline width/height on the iframe element */}
+      <style>{`#${divId}, #${divId} iframe { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; }`}</style>
+
       <div
         ref={containerRef}
         className="relative w-full overflow-hidden rounded-2xl select-none"
@@ -236,9 +239,9 @@ export default function YouTubePlayer({ url, itsId }: Props) {
         onContextMenu={blockContext}
         onDragStart={e => e.preventDefault()}
       >
-        {/* IFrame API target */}
-        <div className="aspect-video bg-black">
-          <div id={divId} className="w-full h-full" />
+        {/* Aspect-ratio shell using padding trick — more reliable than aspect-video for iframe children */}
+        <div className="bg-black" style={{ position: 'relative', paddingTop: '56.25%' }}>
+          <div id={divId} />
         </div>
 
         {/* Interaction blocker — blocks mouse right-click/drag; removed when tap needed so iOS can interact */}

@@ -175,7 +175,7 @@ export default function BroadcastPlayer({
 
   // ── Live ─────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col items-center justify-center flex-1 w-full px-0 sm:px-4 py-2 sm:py-4">
+    <div className="flex flex-col items-center flex-1 w-full px-0 sm:px-4 pt-3 sm:pt-4 pb-4">
       <div className="w-full max-w-5xl">
         {/* Live badge */}
         <div className="flex items-center justify-center mb-3">
