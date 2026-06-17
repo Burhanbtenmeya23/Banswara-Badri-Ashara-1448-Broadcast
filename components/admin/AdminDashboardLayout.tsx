@@ -24,6 +24,12 @@ const navItems = [
       <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
     </svg>
   )},
+  { href: '/admin/dashboard/devices', label: 'Devices', icon: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+      <line x1="12" y1="18" x2="12.01" y2="18"/>
+    </svg>
+  )},
 ]
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {

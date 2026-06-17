@@ -45,10 +45,13 @@ export async function POST(req: NextRequest) {
     .update({ active_session_token: sessionToken, last_login: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq('id', user.id)
 
+  const userAgent = req.headers.get('user-agent') ?? ''
+
   await supabaseAdmin.from('sessions').insert({
     user_id: user.id,
     token: sessionToken,
     ip_address: ip,
+    user_agent: userAgent,
     created_at: new Date().toISOString(),
     last_seen: new Date().toISOString(),
   })
