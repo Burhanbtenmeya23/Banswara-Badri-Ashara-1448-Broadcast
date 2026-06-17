@@ -149,9 +149,11 @@ export default function LoginForm() {
           </form>
         </div>
 
-        <p className="text-center text-xs mt-6" style={{ color: 'rgba(0,26,84,0.35)' }}>
-          Access restricted. Contact admin for credentials.
-        </p>
+        {error && (
+          <p className="text-center text-xs mt-6" style={{ color: 'rgba(0,26,84,0.35)' }}>
+            Access restricted. Contact admin for credentials.
+          </p>
+        )}
       </div>
     </div>
     </div>
