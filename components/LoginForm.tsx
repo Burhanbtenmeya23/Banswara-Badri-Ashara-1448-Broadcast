@@ -57,7 +57,14 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="bg-broadcast min-h-screen flex flex-col items-center justify-center px-4 py-8">
+    <div className="bg-broadcast" style={{
+      display: 'table', width: '100%', height: '100%',
+      minHeight: '100vh', minWidth: '100%',
+      position: 'fixed', top: 0, left: 0, overflowY: 'auto',
+      paddingTop: 32, paddingBottom: 32,
+      boxSizing: 'border-box',
+    }}>
+    <div style={{ display: 'table-cell', verticalAlign: 'middle', padding: '0 16px' }}>
       {/* Decorative background orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full opacity-10"
@@ -146,6 +153,7 @@ export default function LoginForm() {
           Access restricted. Contact admin for credentials.
         </p>
       </div>
+    </div>
     </div>
   )
 }
