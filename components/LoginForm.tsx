@@ -1,19 +1,28 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, useRef, FormEvent } from 'react'
 
 export default function LoginForm() {
-  const [itsId, setItsId] = useState('')
+  // Uncontrolled input — TV browsers don't fire onChange reliably during typing.
+  // We read the DOM value directly on submit instead.
+  const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (itsId.trim().length !== 8) {
+
+    // Read value directly from DOM — works on all TV browsers regardless of
+    // whether onChange / input events fired during typing
+    const raw = inputRef.current?.value ?? ''
+    const itsId = raw.replace(/\D/g, '').slice(0, 8)
+
+    if (itsId.length !== 8) {
       setError('ITS ID must be exactly 8 digits.')
       return
     }
+
     setError('')
     setLoading(true)
 
@@ -22,7 +31,7 @@ export default function LoginForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ its_id: itsId.trim() }),
+        body: JSON.stringify({ its_id: itsId }),
       })
 
       let data: { error?: string } = {}
@@ -33,9 +42,8 @@ export default function LoginForm() {
         return
       }
 
-      // Show success state before navigating — TV browsers may be slow to navigate
+      // Show success banner before navigating — TV browsers can be slow
       setSuccess(true)
-      // Try multiple navigation methods for broad browser compatibility
       setTimeout(() => {
         try { window.location.replace('/broadcast') } catch {
           try { window.location.href = '/broadcast' } catch {}
@@ -58,7 +66,6 @@ export default function LoginForm() {
           style={{ background: 'radial-gradient(circle, #003087 0%, transparent 70%)' }} />
       </div>
 
-      {/* max-w-sm keeps card compact on wide/TV screens */}
       <div className="relative w-full" style={{ maxWidth: 400 }}>
         {/* Logo / Header */}
         <div className="text-center mb-8">
@@ -108,13 +115,14 @@ export default function LoginForm() {
               <label className="block text-xs font-semibold mb-1.5" style={{ color: '#003087' }}>
                 ITS ID
               </label>
+              {/* Uncontrolled input — no onChange, no value prop.
+                  TV browsers (Samsung, LG, Android TV) update the DOM value
+                  directly via their virtual keyboard without firing input events. */}
               <input
-                type="text"
-                maxLength={8}
+                ref={inputRef}
+                type="number"
                 className="glass-input"
                 placeholder="Enter your 8-digit ITS ID"
-                value={itsId}
-                onChange={(e) => setItsId(e.target.value.replace(/\D/g, '').slice(0, 8))}
                 autoComplete="username"
               />
             </div>
