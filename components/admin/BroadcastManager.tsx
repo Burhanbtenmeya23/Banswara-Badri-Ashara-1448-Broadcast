@@ -38,6 +38,21 @@ export default function BroadcastManager() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [previewState, setPreviewState] = useState<PreviewState>(null)
+  const [showRefreshConfirm, setShowRefreshConfirm] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const [refreshDone, setRefreshDone] = useState(false)
+
+  async function handleForceRefresh() {
+    setRefreshing(true)
+    try {
+      await fetch('/api/admin/force-refresh', { method: 'POST' })
+      setRefreshDone(true)
+      setTimeout(() => setRefreshDone(false), 4000)
+    } finally {
+      setRefreshing(false)
+      setShowRefreshConfirm(false)
+    }
+  }
 
   useEffect(() => {
     async function load() {
@@ -99,12 +114,65 @@ export default function BroadcastManager() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold" style={{ color: '#001a54' }}>Broadcast Management</h1>
-        <p className="text-xs mt-1" style={{ color: 'rgba(0,26,84,0.4)' }}>
-          Configure YouTube video and broadcast schedule
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-6">
+        <div>
+          <h1 className="text-xl font-semibold" style={{ color: '#001a54' }}>Broadcast Management</h1>
+          <p className="text-xs mt-1" style={{ color: 'rgba(0,26,84,0.4)' }}>
+            Configure YouTube video and broadcast schedule
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <button
+            onClick={() => setShowRefreshConfirm(true)}
+            className="flex items-center gap-2 px-4 py-2 text-xs rounded-lg font-medium transition-all"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#dc2626' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M23 4v6h-6M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+            </svg>
+            Force Refresh All Users
+          </button>
+          {refreshDone && (
+            <span className="text-xs" style={{ color: '#16a34a' }}>
+              ✓ Refresh signal sent to all users
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* Confirmation dialog */}
+      {showRefreshConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
+          <div className="glass-card p-6 max-w-sm w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold" style={{ color: '#001a54' }}>Force Refresh All Users?</h3>
+                <p className="text-xs mt-0.5" style={{ color: 'rgba(0,26,84,0.5)' }}>This will reload the broadcast page for every active user within 15 seconds.</p>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-5">
+              <button onClick={() => setShowRefreshConfirm(false)}
+                className="flex-1 px-4 py-2 text-xs rounded-lg"
+                style={{ background: 'rgba(0,48,135,0.06)', border: '1px solid rgba(0,48,135,0.15)', color: '#003087' }}>
+                Cancel
+              </button>
+              <button onClick={handleForceRefresh} disabled={refreshing}
+                className="flex-1 px-4 py-2 text-xs rounded-lg font-semibold"
+                style={{ background: '#dc2626', color: '#fff', opacity: refreshing ? 0.6 : 1 }}>
+                {refreshing ? 'Sending…' : 'Yes, Refresh All'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Settings Form */}

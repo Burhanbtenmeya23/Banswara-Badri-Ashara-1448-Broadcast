@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import BroadcastPlayer from '@/components/BroadcastPlayer'
 
@@ -12,6 +12,7 @@ interface BroadcastSettings {
 }
 
 const SESSION_CHECK_INTERVAL = 30 * 1000
+const PING_INTERVAL = 15 * 1000
 
 export default function BroadcastClient() {
   const router = useRouter()
@@ -21,6 +22,8 @@ export default function BroadcastClient() {
   const [terminated, setTerminated] = useState(false)
   const [itsId, setItsId] = useState('')
   const [audioOnly, setAudioOnly] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const lastRefreshAt = useRef<string | null>(null)
 
   const verifyAndLoad = useCallback(async () => {
     try {
@@ -61,15 +64,41 @@ export default function BroadcastClient() {
     }
   }, [])
 
+  const checkPing = useCallback(async () => {
+    try {
+      const res = await fetch('/api/broadcast/ping')
+      if (!res.ok) return
+      const data = await res.json()
+      const serverTs: string | null = data.force_refresh_at ?? null
+
+      // First call — just record the current value, don't reload
+      if (lastRefreshAt.current === null) {
+        lastRefreshAt.current = serverTs
+        return
+      }
+
+      // If the server timestamp changed, trigger a refresh nudge
+      if (serverTs && serverTs !== lastRefreshAt.current) {
+        lastRefreshAt.current = serverTs
+        setRefreshing(true)
+        setTimeout(() => { window.location.reload() }, 2500)
+      }
+    } catch {
+      // Network blip — ignore
+    }
+  }, [])
+
   useEffect(() => {
     verifyAndLoad()
     checkSession()
-  }, [verifyAndLoad, checkSession])
+    checkPing()
+  }, [verifyAndLoad, checkSession, checkPing])
 
   useEffect(() => {
-    const interval = setInterval(checkSession, SESSION_CHECK_INTERVAL)
-    return () => clearInterval(interval)
-  }, [checkSession])
+    const sessionInterval = setInterval(checkSession, SESSION_CHECK_INTERVAL)
+    const pingInterval = setInterval(checkPing, PING_INTERVAL)
+    return () => { clearInterval(sessionInterval); clearInterval(pingInterval) }
+  }, [checkSession, checkPing])
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -166,6 +195,19 @@ export default function BroadcastClient() {
 
       {/* Player */}
       <BroadcastPlayer settings={settings} audioOnly={audioOnly} />
+
+      {/* Admin-triggered refresh nudge */}
+      {refreshing && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="px-6 py-4 rounded-2xl text-center shadow-xl"
+            style={{ background: 'rgba(0,48,135,0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <div className="w-8 h-8 border-2 rounded-full animate-spin mx-auto mb-3"
+              style={{ borderColor: 'rgba(255,255,255,0.25)', borderTopColor: '#fff' }} />
+            <p className="text-white text-sm font-medium">Refreshing stream…</p>
+            <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.55)' }}>Please wait a moment</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
